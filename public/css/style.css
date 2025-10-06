@@ -1,0 +1,675 @@
+/* --- Styling Navbar --- */
+.navbar {
+    background-color: #0d1e35;
+    color: #fff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky; /* Membuat navbar tetap di atas */
+    top: 0;
+    z-index: 1000; /* Memastikan navbar berada di lapisan teratas */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-logo img {
+    height: 40px; /* Atur tinggi logo */
+}
+
+.navbar-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar-links a {
+    color: #f0f4f8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+    color: #4b6cb7; /* Ubah warna saat kursor di atasnya */
+}
+
+/* --- Aturan Dasar dan Tata Letak Umum --- */
+body {
+    background-color: #0b1a2e; /* Warna latar belakang */
+    color: #f0f4f8; /* Warna teks utama */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    overflow-x: hidden; /* Penting agar tidak ada scrollbar horizontal yang tidak diinginkan */
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+section {
+    padding: 3rem 2rem;
+}
+
+/* --- Bagian Header --- */
+.hero-section {
+    position: relative;
+    height: 400px;
+    background-image: url('../images/masjid.jpg'); /* Ganti dengan gambar header Anda */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 30, 46, 0.7);
+}
+
+.header-content {
+    position: relative;
+    z-index: 10;
+}
+
+.header-content .title {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.header-content .subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* --- Bagian Data Penduduk (Carousel) --- */
+.data-section {
+    background-color: #122841;
+    overflow: hidden; /* Penting untuk menyembunyikan bagian kartu yang keluar */
+}
+
+.data-carousel-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px; /* Batasi lebar carousel */
+    margin: 0 auto;
+    perspective: 1000px; /* Memberi kedalaman untuk efek 3D */
+}
+
+.data-cards-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 300px; /* Ketinggian container carousel */
+    transition: transform 0.5s ease-in-out;
+}
+
+.data-card {
+    position: absolute; /* Penting untuk efek tumpukan */
+    background-color: #1c3d64;
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    opacity: 0; /* Sembunyikan semua kartu secara default */
+    pointer-events: none; /* Nonaktifkan interaksi mouse */
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, z-index 0.5s;
+    width: 25rem; /* Lebar default */
+    height: 12rem; /* Tinggi default */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.8) translateX(0); /* Posisi awal */
+    z-index: 1;
+}
+
+.data-card.large {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Gaya untuk kartu aktif (yang di tengah) */
+.data-card.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1) translateX(0) rotateY(0deg); /* Lebih besar, di tengah */
+    z-index: 10;
+    pointer-events: auto; /* Aktifkan interaksi */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Gaya untuk kartu di sebelah kiri dari yang aktif */
+.data-card.prev-1 {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.9) translateX(-200px) rotateY(15deg); /* Lebih kecil, geser kiri, miring */
+    z-index: 5;
+    pointer-events: auto; /* Aktifkan interaksi */
+}
+
+/* Gaya untuk kartu di sebelah kanan dari yang aktif */
+.data-card.next-1 {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.9) translateX(200px) rotateY(-15deg); /* Lebih kecil, geser kanan, miring */
+    z-index: 5;
+    pointer-events: auto; /* Aktifkan interaksi */
+}
+
+/* Jika ada lebih banyak kartu, bisa ditambahkan gaya untuk prev-2, next-2, dst. */
+/* Contoh untuk prev-2 dan next-2 */
+.data-card.prev-2 {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0.7) translateX(-350px) rotateY(25deg);
+    z-index: 3;
+}
+.data-card.next-2 {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0.7) translateX(350px) rotateY(-25deg);
+    z-index: 3;
+}
+
+
+.data-value {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.bar-chart {
+    height: 8px;
+    width: 100%;
+    background-color: #333;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 5px;
+}
+
+.bar-fill.laki {
+    width: 70%;
+    background-color: #8c81ff;
+}
+.bar-fill.perempuan {
+    width: 30%;
+    background-color: #4b6cb7;
+}
+/* Contoh tambahan untuk chart baru */
+.bar-fill.muda {
+    width: 45%;
+    background-color: #a44bcf;
+}
+.bar-fill.dewasa {
+    width: 55%;
+    background-color: #f7a731;
+}
+
+.pie-chart {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    background: conic-gradient(#8c81ff 70%, #4b6cb7 0);
+    margin: auto;
+}
+
+/* Tombol Navigasi Carousel */
+.carousel-nav {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15; /* Pastikan di atas kartu */
+    transition: background-color 0.3s;
+}
+
+.carousel-nav:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.carousel-nav.prev {
+    left: 20px; /* Atur posisi panah kiri */
+}
+
+.carousel-nav.next {
+    right: 20px; /* Atur posisi panah kanan */
+}
+
+
+/* --- Bagian Berita dan Informasi (tidak berubah) --- */
+.info-section {
+    background-color: #0b1a2e;
+}
+
+.info-card-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-card {
+    background-color: #1c3d64;
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    max-width: 60rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.info-image img {
+    width: 15rem;
+    height: auto;
+    border-radius: 1rem;
+}
+
+.info-button {
+    background-color: #4b6cb7;
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.info-navigation {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.nav-arrow {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background-color 0.3s;
+}
+
+/* --- Bagian Profil (tidak berubah) --- */
+.profile-section {
+    background-color: #1c3d64;
+    text-align: center;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    max-width: 60rem;
+    margin: auto;
+}
+
+.profile-image-container {
+    width: 15rem;
+    height: 15rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #4b6cb7;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.profile-description {
+    max-width: 40rem;
+    margin: auto;
+}
+
+/* --- Bagian Lokasi (tidak berubah) --- */
+.location-section {
+    background-color: #0b1a2e;
+}
+
+.map-container {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    height: 25rem;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* --- Footer (tidak berubah) --- */
+.main-footer {
+    background-color: #1c3d64;
+    padding: 2rem 2rem;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 60rem;
+    margin: auto;
+}
+
+.footer-logo img {
+    width: 3rem;
+    height: auto;
+}
+
+/* --- dropdown --- */
+/* Styling Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropbtn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #1a4f78;
+    min-width: 160px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #f0f4f8;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: 400;
+}
+
+.dropdown-content a:hover {
+    background-color: #4b6cb7;
+}
+
+/* Tampilkan dropdown saat kursor mengarah ke item menu */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* --- Halaman Demografi --- */
+
+.demografi-section {
+    background-color: #122841;
+    padding: 3rem 2rem;
+    margin-top: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.data-penduduk-section {
+    background: linear-gradient(180deg, #122841 0%, #0b1a2e 100%);
+}
+
+.data-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.data-card-demografi {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.data-card-demografi img {
+    height: 60px;
+    margin-bottom: 0.5rem;
+}
+
+.data-card-demografi .card-label {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #f0f4f8;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.data-card-demografi .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* --- Tambahkan Variabel untuk Konsistensi --- */
+:root {
+    --color-primary-light: #ffffff; /* Teal/Biru Muda Cerah */
+    --color-primary-dark: #0B1A2E; /* Latar Belakang Dasar */
+    --color-bg-card: #153255; /* Latar Belakang Card/Konten */
+    --color-bg-subtle: #081221; /* Latar Belakang Subtilis */
+    --color-shadow: rgba(0, 0, 0, 0.4);
+}
+
+/* --- Perbaikan Umum dan Section --- */
+body {
+    background-color: var(--color-primary-dark);
+}
+section {
+    padding: 3rem 5%;
+}
+.section-title {
+    color: var(--color-primary-light); /* Judul berwarna aksen */
+    margin-bottom: 0.5rem;
+}
+.chart-title-sub {
+    font-size: 1.5rem !important;
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff; /* Judul sub berwarna putih */
+}
+
+/* --- KARTU DATA ATAS (Data Penduduk) --- */
+.data-penduduk-section {
+    background-color: var(--color-bg-subtle); /* Latar belakang untuk section kartu atas */
+}
+
+.data-card-demografi {
+    background-color: var(--color-bg-card);
+    border-radius: 12px;
+    box-shadow: 0 6px 15px var(--color-shadow);
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+.data-card-demografi:hover {
+    transform: translateY(-3px); /* Efek angkat saat hover */
+}
+.data-card-demografi .card-value {
+    color: var(--color-primary-light);
+    font-size: 2.2rem;
+}
+/* Kartu Total dengan aksen warna */
+.data-card-demografi.card-total {
+    background: linear-gradient(135deg, #1C3D64, #4B6CB7);
+    color: #ffffff;
+}
+
+
+/* --- CHART & FILTER CONTAINER MODERN --- */
+
+/* Container Utama untuk seluruh Chart Section */
+.chart-area-card {
+    background-color: var(--color-bg-card);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px var(--color-shadow);
+    padding: 2rem;
+    margin-top: 1rem;
+}
+
+/* Kontrol Filter (Membuatnya terlihat rapi di tengah) */
+.filter-controls-modern {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+/* STYLING ELEMEN DROPDOWN (<select>) */
+.select-modern {
+    background-color: rgb(9, 3, 30); /* Background transparan */
+    color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-light);
+    padding: 10px 30px 10px 15px; /* Padding untuk ikon panah */
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+
+    /* Menghilangkan style bawaan browser */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Ikon panah kustom */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%22%312%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%234BC0C0%22%20d%3D%22M10.293%203.293L6%207.586%201.707%203.293A1%201%200%2000.293%204.707l5%205a1%201%200%20001.414%200l5-5a1%201%200%2000-1.414-1.414z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Chart Container Agama - Diperbaiki */
+.agama-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+    margin: 0 auto;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+/* Chart Container Umum (Bar Chart) */
+.chart-container-inner {
+    padding: 1rem;
+}
+
+.chart-legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chart-legend li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.pendidikan-chart {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.pendidikan-chart img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 1rem;
+}
+
+/* --- Style Khusus Notifikasi (untuk transisi) --- */
+.alert-success, .alert-error-message {
+    padding: 15px 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    opacity: 1; /* Status awal: terlihat */
+    transition: opacity 0.5s ease-out;
+}
+
+.alert-success {
+    background-color: #4CAF50; /* Hijau */
+    color: white;
+}
+
+.alert-error-message {
+    background-color: #f44336; /* Merah */
+    color: white;
+}
+
+/* Styling untuk Bar Chart Multi-Kategori (100% Stacked) */
+.bar-chart-multi {
+    display: flex; /* Mengatur bar berjejer horizontal */
+    width: 100%;
+    height: 10px; /* Tinggi bar */
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+    background-color: #333; /* Warna dasar jika total < 100% */
+}
+
+.bar-fill-multi {
+    height: 100%;
+    /* Persentase width diatur inline di HTML */
+}
