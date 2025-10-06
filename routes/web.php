@@ -9,7 +9,10 @@ use App\Http\Controllers\AdminDashboardController;
 // --- ROUTE PUBLIK ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/demografi', [DemografiController::class, 'index'])->name('demografi.index');
+
+// --- ROUTE UNTUK AUTENTIKASI ---
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post'); // <-- PINDAHKAN KE SINI
 
 // --- ROUTE ADMIN GROUP ---
 Route::prefix('admin')->name('admin.')->group(function () {
