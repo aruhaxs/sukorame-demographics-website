@@ -4,26 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Bangunan extends Model
 {
     use HasFactory;
 
     /**
-     * Nama tabel yang terkait dengan model.
-     * Laravel akan otomatis mencari 'bangunans' jika ini tidak didefinisikan.
-     */
-    protected $table = 'bangunans';
-
-    /**
-     * Kolom-kolom yang dapat diisi secara massal (mass assignable).
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'nama_bangunan',
         'kategori',
         'deskripsi',
-        'foto',
         'latitude',
         'longitude',
+        'rw_id',
+        'rt_id',
+        'foto',
     ];
+
+    public function rw(): BelongsTo
+    {
+        return $this->belongsTo(Rw::class, 'rw_id');
+    }
+
+
+    public function rt(): BelongsTo
+    {
+        return $this->belongsTo(Rt::class, 'rt_id');
+    }
 }

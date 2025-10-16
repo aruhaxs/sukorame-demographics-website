@@ -70,7 +70,7 @@
             font-weight: 500;
         }
 
-        /* --- PERUBAHAN 2: Tombol Hamburger Dibuat Lebih Jelas --- */
+        /* --- Tombol Hamburger --- */
         .navbar-toggler {
             display: none;
             width: 40px;
@@ -84,8 +84,8 @@
         }
         .navbar-toggler .bar {
             width: 100%;
-            height: 3px; /* Dibuat lebih tebal */
-            margin: 4px 0; /* Jarak dipersempit */
+            height: 3px;
+            margin: 4px 0;
             background-color: #1E5631;
             border-radius: 2px;
             transition: transform 0.3s ease-in-out;
@@ -94,21 +94,21 @@
         .navbar-toggler.open .bar:nth-child(2) { opacity: 0; }
         .navbar-toggler.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-        /* --- PERUBAHAN 1: Menu Samping dari Kanan --- */
+        /* --- Menu Samping dari Kanan --- */
         .side-menu {
             height: 100%;
             width: 280px;
             position: fixed;
             z-index: 102;
             top: 0;
-            right: -280px; /* Diubah dari 'left' ke 'right' */
+            right: -280px;
             background-color: #1E5631;
             padding-top: 20px;
-            transition: right 0.3s ease; /* Transisi diubah ke 'right' */
+            transition: right 0.3s ease;
             box-shadow: -2px 0 5px rgba(0,0,0,0.2);
         }
         .side-menu.active {
-            right: 0; /* Dimunculkan dari kanan */
+            right: 0;
         }
 
         .close-menu-btn {
@@ -151,9 +151,9 @@
 
     <aside class="side-menu" id="side-menu">
         <button class="close-menu-btn" id="close-menu-btn" aria-label="Close menu">&times;</button>
-        <div class="side-menu-links" style="padding-top: 40px;"> {{-- Beri padding atas agar tidak tertutup tombol close --}}
+        <div class="side-menu-links" style="padding-top: 40px;">
             <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">DASHBOARD</a>
-            <a href="{{ route('admin.perangkat.index') }}" class="{{ request()->routeIs('admin.perangkat.*') ? 'active' : '' }}">RT/RW</a>
+            <a href="{{ route('admin.rt-rw.index') }}" class="{{ request()->routeIs('admin.rt-rw.*') ? 'active' : '' }}">RT/RW</a>
             <a href="{{ route('admin.penduduk.index') }}" class="{{ request()->routeIs('admin.penduduk.*') ? 'active' : '' }}">PENDUDUK</a>
             <a href="{{ route('admin.komoditas.index') }}" class="{{ request()->routeIs('admin.komoditas.*') ? 'active' : '' }}">KOMODITAS</a>
             <a href="{{ route('admin.bangunan.index') }}" class="{{ request()->routeIs('admin.bangunan.*') ? 'active' : '' }}">BANGUNAN</a>
@@ -175,7 +175,7 @@
 
         <ul class="top-menu-links">
             <li><a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">DASHBOARD</a></li>
-            <li><a href="{{ route('admin.perangkat.index') }}" class="{{ request()->routeIs('admin.perangkat.*') ? 'active' : '' }}">RT/RW</a></li>
+            <li><a href="{{ route('admin.rt-rw.index') }}" class="{{ request()->routeIs('admin.rt-rw.*') ? 'active' : '' }}">RT/RW</a></li>
             <li><a href="{{ route('admin.penduduk.index') }}" class="{{ request()->routeIs('admin.penduduk.*') ? 'active' : '' }}">PENDUDUK</a></li>
             <li><a href="{{ route('admin.komoditas.index') }}" class="{{ request()->routeIs('admin.komoditas.*') ? 'active' : '' }}">KOMODITAS</a></li>
             <li><a href="{{ route('admin.bangunan.index') }}" class="{{ request()->routeIs('admin.bangunan.*') ? 'active' : '' }}">BANGUNAN</a></li>
@@ -208,7 +208,6 @@
             const toggleMenu = () => {
                 sideMenu.classList.toggle('active');
                 overlay.classList.toggle('active');
-                // Tambahkan toggle class 'open' untuk animasi X
                 toggler.classList.toggle('open');
             };
 

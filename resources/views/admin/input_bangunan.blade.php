@@ -2,63 +2,23 @@
 
 @section('title', 'Tambah Data Bangunan')
 
-@section('admin_content')
+@section('content')
 
+{{-- Style ini konsisten dengan halaman edit dan halaman lainnya --}}
 <style>
-    .form-card {
-        background-color: var(--color-bg-card);
-        padding: 2.5rem;
-        border-radius: 12px;
-        max-width: 800px;
-        margin: 2rem auto;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    }
-    .form-card h2 {
-        color: var(--color-primary-light);
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 2rem;
-        font-size: 2rem;
-    }
+    .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 800px; margin: 2rem auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+    .form-card h2 { color: var(--color-primary-light); text-align: center; margin-top: 0; margin-bottom: 2rem; font-size: 2rem; }
     .form-group { margin-bottom: 1.5rem; }
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-    .form-control, .form-select, textarea.form-control {
-        width: 100%;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #334e6f;
-        background-color: #0b1a2e;
-        color: #f0f4f8;
-        box-sizing: border-box;
-        font-size: 1rem;
-        font-family: 'Poppins', sans-serif;
-    }
-    .btn-submit {
-        background-color: var(--color-primary-light);
-        color: var(--color-primary-dark);
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        width: 100%;
-    }
-    .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    .form-control, .form-select, textarea.form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334e6f; background-color: #0b1a2e; color: #f0f4f8; box-sizing: border-box; font-size: 1rem; font-family: 'Poppins', sans-serif; }
+    .form-select:disabled { background-color: #2d3748; cursor: not-allowed; }
+    .btn-submit { background-color: var(--color-primary-light); color: var(--color-primary-dark); padding: 12px 25px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 </style>
 
 <div class="form-card">
     <h2>Tambah Data Bangunan Baru</h2>
 
-    {{-- ✅ Form Tambah Data Bangunan --}}
     <form action="{{ route('admin.bangunan.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -81,7 +41,7 @@
             </div>
         </div>
 
-        {{-- ✅ Dropdown RW dan RT --}}
+        {{-- Dropdown RW dan RT Dinamis --}}
         <div class="grid-2">
             <div class="form-group">
                 <label for="rw_id">Nomor RW *</label>
@@ -97,13 +57,8 @@
 
             <div class="form-group">
                 <label for="rt_id">Nomor RT *</label>
-                <select name="rt_id" id="rt_id" class="form-select" required>
-                    <option value="">-- Pilih RT --</option>
-                    @foreach($rts as $rt)
-                        <option value="{{ $rt->id }}" {{ old('rt_id') == $rt->id ? 'selected' : '' }}>
-                            RT {{ $rt->nomor_rt }}
-                        </option>
-                    @endforeach
+                <select name="rt_id" id="rt_id" class="form-select" required disabled>
+                    <option value="">-- Pilih RW Terlebih Dahulu --</option>
                 </select>
             </div>
         </div>
@@ -135,3 +90,39 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('rw_id').addEventListener('change', function() {
+        const rwId = this.value;
+        const rtSelect = document.getElementById('rt_id');
+
+        rtSelect.innerHTML = '<option value="">Memuat data RT...</option>';
+        rtSelect.disabled = true;
+
+        if (rwId) {
+            // ✅ PERBAIKAN: URL disesuaikan dengan yang ada di file routes/web.php
+            fetch(`/api/get-rt-by-rw/${rwId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    rtSelect.innerHTML = '<option value="">-- Pilih RT --</option>';
+                    data.forEach(function(rt) {
+                        rtSelect.innerHTML += `<option value="${rt.id}">RT ${rt.nomor_rt}</option>`;
+                    });
+                    rtSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching RT data:', error);
+                    rtSelect.innerHTML = '<option value="">Gagal memuat data</option>';
+                });
+        } else {
+            rtSelect.innerHTML = '<option value="">-- Pilih RW Terlebih Dahulu --</option>';
+        }
+    });
+</script>
+@endpush
