@@ -185,6 +185,12 @@ class AdminDashboardController extends Controller
     public function storeKomoditas(Request $request): RedirectResponse
     {
         $validatedData = $request->validate($this->komoditasValidationRules());
+
+        // FIX: Membersihkan input 'harga', menghapus semua karakter selain angka
+        if (isset($validatedData['harga'])) {
+            $validatedData['harga'] = preg_replace('/[^0-9]/', '', $validatedData['harga']);
+        }
+
         Komoditas::create($validatedData);
         return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil ditambahkan!');
     }
@@ -197,6 +203,12 @@ class AdminDashboardController extends Controller
     public function updateKomoditas(Request $request, Komoditas $komoditas): RedirectResponse
     {
         $validatedData = $request->validate($this->komoditasValidationRules());
+
+        // FIX: Membersihkan input 'harga', menghapus semua karakter selain angka
+        if (isset($validatedData['harga'])) {
+            $validatedData['harga'] = preg_replace('/[^0-9]/', '', $validatedData['harga']);
+        }
+
         $komoditas->update($validatedData);
         return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil diperbarui!');
     }
@@ -216,6 +228,7 @@ class AdminDashboardController extends Controller
             'periode' => 'nullable|string|max:255',
             'produsen' => 'nullable|string|max:255',
             'lokasi' => 'nullable|string|max:255',
+            // Validasi harga sebagai string untuk menerima format apapun, pembersihan dilakukan di controller
             'harga' => 'nullable|string|max:255',
         ];
     }
@@ -225,7 +238,7 @@ class AdminDashboardController extends Controller
      * CRUD BANGUNAN
      * =============================
      */
-   public function indexBangunan(): View
+    public function indexBangunan(): View
     {
         $bangunans = Bangunan::latest()->paginate(10);
         $totalBangunan = Bangunan::count();

@@ -30,15 +30,11 @@
         // [1] Inisialisasi Peta
         var map = L.map('map').setView([-7.82, 112.02], 15); // Koordinat tengah kelurahan Anda
 
-        // [2] Tambahkan Layer Peta dari OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // =================================================================
-        // [3] TAMBAHKAN BATAS WILAYAH (POLIGON)
-        // =================================================================
         const batasSukorameCoords = [
             [-7.815, 112.018],
             [-7.815, 112.025],
