@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('penduduks', function (Blueprint $table) {
             $table->id();
+            $table->string('nomor_kk', 16)->nullable();
             $table->string('nik', 16)->unique();
             $table->string('nama_lengkap');
             $table->string('jenis_kelamin');
             $table->date('tanggal_lahir');
-            $table->string('rt');
-            $table->string('rw');
+            $table->foreignId('rw_id')->constrained('rw')->onDelete('cascade');
+            $table->foreignId('rt_id')->constrained('rt')->onDelete('cascade');
             $table->string('pekerjaan');
             $table->string('pendidikan_terakhir');
             $table->string('agama');
-            $table->timestamps(); // Ini akan membuat kolom created_at dan updated_at
+            $table->timestamps();
         });
     }
 
