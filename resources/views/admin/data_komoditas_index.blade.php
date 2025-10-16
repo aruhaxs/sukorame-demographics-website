@@ -5,22 +5,111 @@
 @section('content')
 
 <style>
-    /* Menggunakan kembali style dari halaman data lainnya */
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    /* PINE GREEN THEME */
+    :root {
+        --color-primary: #0a6847; /* Deep Pine Green */
+        --color-primary-light: #7aba78; /* Light Accent Green */
+        --color-bg-dark: #0d1b2a;  /* Very Dark Blue-Gray */
+        --color-bg-card: #1b263b;  /* Dark Card Background */
+        --color-text-light: #f0f8ff; /* Alice Blue (off-white) */
+        --color-text-subtle: #a0aec0; /* Lighter gray for labels */
+        --color-border: #4a5568;
+        --color-danger: #e53e3e;
+    }
+
+    /* === GENERAL LAYOUT & CARD STYLES === */
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; }
     .header-actions { display: flex; gap: 1rem; align-items: center; }
-    .search-input { background-color: var(--color-bg-card); border: 1px solid #334e6f; color: #E0E7FF; padding: 8px 15px; border-radius: 5px; width: 250px; }
-    .btn-tambah-data { background-color: var(--color-primary-light); color: var(--color-primary-dark); padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: 600; white-space: nowrap; }
-    .stat-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-    .stat-card-small { background-color: var(--color-bg-card); padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-    .stat-card-small .value { font-size: 2rem; font-weight: 700; color: var(--color-primary-light); }
-    .card-list-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
-    .data-card-item { background-color: var(--color-bg-card); border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
-    .data-card-item h3 { margin: 0; font-size: 1.25rem; color: #fff; }
-    .category-tag { font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 5px; background-color: var(--color-primary-light); color: var(--color-primary-dark); }
-    .data-card-item p { margin: 0 0 0.5rem 0; font-size: 0.95rem; }
-    .data-card-item p strong { color: var(--color-text-subtle); width: 100px; display: inline-block; }
-    .card-actions { position: absolute; top: 1.5rem; right: 1.5rem; }
-    .btn-icon { background: none; border: none; cursor: pointer; padding: 5px; font-size: 1rem; color: #AAB7C4; }
+    .search-input { background-color: var(--color-bg-card); border: 1px solid var(--color-border); color: var(--color-text-light); padding: 10px 15px; border-radius: 8px; width: 250px; font-size: 0.9rem; transition: all 0.2s ease; }
+    .search-input:focus { border-color: var(--color-primary-light); box-shadow: 0 0 0 3px rgba(122, 186, 120, 0.3); }
+    .btn-tambah-data { background-color: var(--color-primary); color: var(--color-text-light); padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; white-space: nowrap; transition: background-color 0.2s ease; }
+    .btn-tambah-data:hover { background-color: #0d8259; }
+
+    .stat-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+    .stat-card-small { background-color: var(--color-bg-card); padding: 1.5rem; border-radius: 12px; text-align: center; border-left: 5px solid var(--color-primary); }
+    .stat-card-small p { margin: 0 0 0.5rem 0; color: var(--color-text-subtle); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+    .stat-card-small .value { font-size: 2.25rem; font-weight: 700; color: var(--color-primary-light); }
+
+    .card-list-wrapper { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+    .data-card-item {
+        background-color: var(--color-bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        position: relative; /* Penting untuk positioning kategori dan aksi */
+        overflow: hidden; /* Memastikan tidak ada yang keluar dari card */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .data-card-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+    
+    .card-header { margin-bottom: 1rem; display: flex; align-items: center; }
+    .card-header h3 { margin: 0; font-size: 1.3rem; color: var(--color-text-light); }
+    
+    /* Perubahan pada kategori tag */
+    .category-tag {
+        position: absolute; /* Posisikan secara absolut */
+        top: 0; /* Di pojok kanan atas */
+        right: 0;
+        background-color: var(--color-primary);
+        color: var(--color-text-light);
+        padding: 8px 15px; /* Lebih besar */
+        border-bottom-left-radius: 12px; /* Melengkung di kiri bawah */
+        font-size: 0.9rem; /* Lebih besar */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .card-body { flex-grow: 1; margin-top: 1rem; } /* Menambahkan margin top karena kategori di atas */
+    .card-body p { margin: 0 0 0.75rem 0; font-size: 0.95rem; color: var(--color-text-light); display: flex; }
+    .card-body p strong { color: var(--color-text-subtle); width: 90px; display: inline-block; flex-shrink: 0; }
+    
+    /* Perubahan pada card actions */
+    .card-actions {
+        margin-top: 1.5rem;
+        text-align: right;
+        border-top: 1px solid var(--color-border); /* Garis pemisah */
+        padding-top: 1rem;
+        display: flex;
+        justify-content: flex-end; /* Pindahkan ke kanan */
+        gap: 0.75rem; /* Jarak antar tombol */
+    }
+    .btn-icon {
+        background: #2d3748;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px; /* Sesuaikan padding agar terlihat seperti tombol */
+        font-size: 0.9rem; /* Ukuran font ikon/teks */
+        color: #a0aec0;
+        border-radius: 6px; /* Bentuk sedikit lebih persegi */
+        text-decoration: none;
+        display: inline-flex; /* Untuk menengahkan ikon/teks */
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .btn-icon:hover { color: var(--color-text-light); background-color: var(--color-primary); }
+    .btn-icon-delete:hover { background-color: var(--color-danger); }
+    /* Gaya ikon dari font awesome atau sejenisnya */
+    .fas, .far { margin-right: 5px; } /* Jika Anda menggunakan Font Awesome */
+
+
+    /* === FORM STYLES === */
+    .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 800px; margin: 2rem auto; }
+    .form-card h2 { color: var(--color-primary-light); text-align: center; margin-top: 0; margin-bottom: 2.5rem; font-size: 1.8rem; font-weight: 600; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.6rem; font-weight: 600; color: var(--color-text-subtle); font-size: 0.9rem; }
+    .form-control, .form-select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-border); background-color: var(--color-bg-dark); color: var(--color-text-light); box-sizing: border-box; font-size: 1rem; transition: all 0.2s ease; }
+    .form-control:focus, .form-select:focus { border-color: var(--color-primary-light); box-shadow: 0 0 0 3px rgba(122, 186, 120, 0.3); outline: none; }
+    .form-group small { display: block; margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-text-subtle); }
+    
+    .btn-submit { background-color: var(--color-primary-light); color: #0d1b2a; padding: 14px 25px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; transition: background-color 0.2s ease; }
+    .btn-submit:hover { background-color: #96c997; }
+    .alert-error { color: #fcc; background-color: rgba(229, 62, 62, 0.5); padding: 8px 12px; border-radius: 4px; margin-top: 5px; font-size: 0.85rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
 </style>
 
 <div class="header-bar">
@@ -31,7 +120,7 @@
     </div>
 </div>
 
-{{-- Statistik Card (DINAMIS) --}}
+{{-- Statistik Card --}}
 <div class="stat-cards-grid">
     <div class="stat-card-small">
         <p>Total Komoditas</p>
@@ -43,35 +132,41 @@
     </div>
 </div>
 
-{{-- Daftar Komoditas dalam Card View --}}
+{{-- Daftar Komoditas --}}
 <div class="card-list-wrapper">
     @forelse($komoditas as $k)
     <div class="data-card-item">
         <div class="card-header">
-            {{-- FIX: Menampilkan nama komoditas --}}
-            <h3>{{ $k->nama_komoditas }}</h3>
-            <span class="category-tag">{{ $k->kategori }}</span>
+            <div>
+                <h3>{{ $k->nama_komoditas }}</h3>
+                <span class="category-tag">{{ $k->kategori }}</span>
+            </div>
         </div>
         <div class="card-body">
             <p><strong>Produksi:</strong> {{ $k->produksi ?? '-' }}</p>
             <p><strong>Periode:</strong> {{ $k->periode ?? '-' }}</p>
             <p><strong>Produsen:</strong> {{ $k->produsen ?? '-' }}</p>
             <p><strong>Lokasi:</strong> {{ $k->lokasi ?? '-' }}</p>
-            <p><strong>Harga:</strong> {{ $k->harga ?? '-' }}</p>
+            <p><strong>Harga:</strong>
+                @if(is_numeric($k->harga))
+                    Rp {{ number_format($k->harga, 0, ',', '.') }}
+                @else
+                    -
+                @endif
+            </p>
         </div>
-        <div class="card-actions">
-            {{-- FIX: Menambahkan link Edit dan Hapus --}}
+        <div class="card-footer">
             <a href="{{ route('admin.komoditas.edit', $k) }}" class="btn-icon" title="Edit">✏️</a>
             <form action="{{ route('admin.komoditas.destroy', $k) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-icon" title="Hapus" onclick="return confirm('Yakin ingin menghapus data ini?')">🗑️</button>
+                <button type="submit" class="btn-icon btn-icon-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus data ini?')">🗑️</button>
             </form>
         </div>
     </div>
     @empty
-    <div class="data-card-item" style="text-align: center;">
-        <p>Belum ada data komoditas.</p>
+    <div class="data-card-item" style="text-align: center; grid-column: 1 / -1;">
+        <p style="color: var(--color-text-subtle);">Belum ada data komoditas.</p>
     </div>
     @endforelse
 </div>

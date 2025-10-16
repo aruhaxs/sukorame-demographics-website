@@ -26,6 +26,7 @@
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
     }
     .chart-title {
         font-size: 1.2rem;
@@ -39,6 +40,10 @@
         .page-container { padding: 1rem; }
         .page-title { font-size: 1.5rem; }
         .summary-card .value { font-size: 2rem; }
+    }
+    #genderChart {
+        max-width: 200px;
+        max-height: 200px;
     }
 </style>
 
@@ -77,7 +82,7 @@
     <div class="chart-grid">
         <div class="chart-container">
             <h3 class="chart-title">Penduduk Berdasarkan Jenis Kelamin</h3>
-            <canvas id="genderChart"></canvas>
+            <canvas id="genderChart" width="200" height="200"></canvas>
         </div>
         <div class="chart-container">
             <h3 class="chart-title">Penduduk Berdasarkan Usia</h3>
@@ -140,6 +145,7 @@
             },
             options: {
                 responsive: true,
+                radius: '70%',
                 scales: {
                     y: {
                         beginAtZero: true
@@ -147,7 +153,8 @@
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        display: false,
+                        position: 'top',
                     }
                 }
             }

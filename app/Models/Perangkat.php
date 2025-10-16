@@ -9,7 +9,7 @@ class Perangkat extends Model
 {
     use HasFactory;
 
-    protected $table = 'perangkats'; // Mengatasi konvensi jamak Laravel
+    protected $table = 'perangkats';
 
     protected $fillable = [
         'nama',

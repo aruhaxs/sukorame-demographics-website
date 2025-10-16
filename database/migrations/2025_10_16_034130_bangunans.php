@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('kategori');
             $table->text('deskripsi')->nullable();
             $table->string('foto')->nullable();
-            $table->decimal('latitude', 10, 8);  // Presisi tinggi untuk latitude
-            $table->decimal('longitude', 11, 8); // Presisi tinggi untuk longitude
+            $table->decimal('latitude', 10, 8);
+            $table->decimal('longitude', 11, 8);
+            $table->foreignId('rw_id')->constrained('rw')->onDelete('cascade');
+            $table->foreignId('rt_id')->constrained('rt')->onDelete('cascade');
             $table->timestamps();
         });
     }
