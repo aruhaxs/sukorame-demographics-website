@@ -5,6 +5,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DemografiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\MapController;
+
+
+Route::get('/peta-wilayah', [MapController::class, 'index'])->name('peta.index');
+Route::get('/api/locations', [MapController::class, 'getLocationsApi'])->name('api.locations');
+
+Route::get('/api/get-rt-by-rw/{rw_id}', [AdminDashboardController::class, 'getRtByRw']);
+Route::get('/admin/penduduk/tambah', [AdminDashboardController::class, 'create']);
+Route::get('/get-rt/{rw_id}', [AdminDashboardController::class, 'getRt']);
 
 // --- ROUTE PUBLIK ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,5 +55,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/komoditas/{komoditas}/edit', [AdminDashboardController::class, 'editKomoditas'])->name('komoditas.edit');
     Route::put('/komoditas/{komoditas}', [AdminDashboardController::class, 'updateKomoditas'])->name('komoditas.update');
     Route::delete('/komoditas/{komoditas}', [AdminDashboardController::class, 'destroyKomoditas'])->name('komoditas.destroy');
+
+    // --- FUNGSI CRUD BANGUNAN ---
+    // --- FUNGSI CRUD BANGUNAN ---
+    Route::get('/bangunan', [AdminDashboardController::class, 'indexBangunan'])->name('bangunan.index');
+    Route::get('/bangunan/create', [AdminDashboardController::class, 'createBangunan'])->name('bangunan.create');
+    Route::post('/bangunan/store', [AdminDashboardController::class, 'storeBangunan'])->name('bangunan.store');
+    Route::get('/bangunan/{bangunan}/edit', [AdminDashboardController::class, 'editBangunan'])->name('bangunan.edit');
+    Route::put('/bangunan/{bangunan}', [AdminDashboardController::class, 'updateBangunan'])->name('bangunan.update');
+    Route::delete('/bangunan/{bangunan}', [AdminDashboardController::class, 'destroyBangunan'])->name('bangunan.destroy');
 
 });

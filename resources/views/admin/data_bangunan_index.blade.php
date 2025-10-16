@@ -22,7 +22,7 @@
 <div class="data-table-section">
     <div class="data-table-header">
         <h2>DATA BANGUNAN & PETA WILAYAH</h2>
-        <a href="#" class="btn-tambah-data">Tambah Data Bangunan</a>
+        <a href="{{ route('admin.bangunan.create') }}" class="btn-tambah-data">Tambah Data Bangunan</a>
     </div>
 
     {{-- Placeholder untuk Peta Interaktif --}}

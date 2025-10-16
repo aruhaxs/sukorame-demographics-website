@@ -69,7 +69,7 @@
         .navbar-links a:hover {
             color: #007bff;
         }
-        
+
         .navbar-links .logout-link {
             color: #dc3545; /* Warna khusus logout */
         }
@@ -122,7 +122,7 @@
                 height: 100vh;
                 background-color: #ffffff;
                 box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-                
+
                 /* Atur item menu menjadi vertikal */
                 flex-direction: column;
                 justify-content: flex-start;
@@ -177,7 +177,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Admin">
             </a>
         </div>
-        
+
         <ul class="navbar-links" id="navbar-links">
             <li><a href="{{ route('admin.dashboard') }}">DASHBOARD</a></li>
             <li><a href="{{ route('admin.perangkat.index') }}">RT/RW</a></li>
@@ -186,7 +186,7 @@
             <li><a href="{{ route('admin.bangunan.index') }}">BANGUNAN</a></li>
             <li><a href="{{ route('login') }}" class="logout-link">LOGOUT</a></li>
         </ul>
-        
+
         <button class="navbar-toggler" id="navbar-toggler" aria-label="Toggle navigation">
             <span class="bar"></span>
             <span class="bar"></span>

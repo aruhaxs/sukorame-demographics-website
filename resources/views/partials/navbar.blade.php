@@ -10,7 +10,7 @@
             <a href="{{ route('demografi.index') }}" class="dropbtn">DEMOGRAFI <span class="arrow-down">▼</span></a>
             <div class="dropdown-content">
                 <a href="{{ route('demografi.index') }}">PENDUDUK</a>
-                <a href="#">WILAYAH</a>
+                <a href="{{ route('peta.index') }}">WILAYAH</a>
                 <a href="#">KOMODITAS</a>
             </div>
         </li>
