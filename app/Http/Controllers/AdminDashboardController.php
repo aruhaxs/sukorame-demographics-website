@@ -2,92 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Komoditas;
 use App\Models\Penduduk;
 use App\Models\Perangkat;
-use App\Models\Komoditas;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use App\Models\Bangunan;
+use App\Models\Rt;
+use App\Models\Rw;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
 {
     /**
-     * Menampilkan halaman dashboard utama dengan data ringkasan dan grafik.
+     * =============================
+     * DASHBOARD UTAMA
+     * =============================
      */
     public function index(): View
     {
-        // Data untuk Kartu Ringkasan
         $data = [
             'total_penduduk' => Penduduk::count(),
             'total_perangkat' => Perangkat::count(),
             'total_komoditas' => Komoditas::count(),
+            'total_bangunan' => Bangunan::count(),
         ];
 
-        // Data untuk Grafik Jenis Kelamin (Pie Chart)
-        $genderData = Penduduk::select(
-                DB::raw('jenis_kelamin as gender'),
-                DB::raw('COUNT(*) as total')
-            )
+        // Statistik Jenis Kelamin
+        $genderData = Penduduk::select('jenis_kelamin as gender', DB::raw('COUNT(*) as total'))
             ->groupBy('gender')
             ->get();
-        
+
         $genderChartData = [
-            'labels' => $genderData->pluck('gender'),
+            'labels' => $genderData->pluck('gender')->map(fn($g) => $g ?? 'Tidak Diketahui'),
             'data' => $genderData->pluck('total'),
         ];
 
-        // Data untuk Grafik Kelompok Usia (Bar Chart)
+        // Statistik Umur
         $ageData = Penduduk::select(
-                DB::raw("CASE 
-                    WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 10 THEN 'Anak-anak'
-                    WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 11 AND 20 THEN 'Remaja'
-                    WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 21 AND 50 THEN 'Dewasa'
-                    ELSE 'Lansia' 
-                END as age_group"),
-                DB::raw('COUNT(*) as total')
-            )
+            DB::raw("CASE
+                WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 10 THEN 'Anak-anak (0-10)'
+                WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 11 AND 20 THEN 'Remaja (11-20)'
+                WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 21 AND 50 THEN 'Dewasa (21-50)'
+                ELSE 'Lansia (>50)'
+            END as age_group"),
+            DB::raw('COUNT(*) as total')
+        )
             ->groupBy('age_group')
-            ->orderByRaw("FIELD(age_group, 'Anak-anak', 'Remaja', 'Dewasa', 'Lansia')")
+            ->orderByRaw("FIELD(age_group, 'Anak-anak (0-10)', 'Remaja (11-20)', 'Dewasa (21-50)', 'Lansia (>50)')")
             ->get();
-            
+
         $ageChartData = [
             'labels' => $ageData->pluck('age_group'),
             'data' => $ageData->pluck('total'),
         ];
 
-        // Kirim semua data yang dibutuhkan (ringkasan dan grafik) ke view
         return view('admin.dashboard', compact('data', 'genderChartData', 'ageChartData'));
     }
 
-    // =================================================================
-    // MANAJEMEN PENDUDUK
-    // =================================================================
-
     /**
-     * Menampilkan halaman daftar penduduk beserta data statistik.
+     * =============================
+     * MANAJEMEN PENDUDUK
+     * =============================
      */
     public function indexPenduduk(): View
     {
+        $penduduks = Penduduk::latest()->paginate(10);
         $totalPenduduk = Penduduk::count();
-        $penduduks = Penduduk::orderBy('created_at', 'desc')->paginate(10);
-        $totalKK = Penduduk::whereNotNull('nomor_kk')->distinct('nomor_kk')->count('nomor_kk');
+        $totalKK = Penduduk::distinct('nomor_kk')->count('nomor_kk');
 
         return view('admin.data_penduduk_index', compact('penduduks', 'totalPenduduk', 'totalKK'));
     }
 
-    /**
-     * Menampilkan form untuk menambah data penduduk baru.
-     */
     public function createPenduduk(): View
     {
-        return view('admin.input_penduduk');
+        $rws = Rw::orderBy('nomor_rw')->get();
+        return view('admin.input_penduduk', compact('rws'));
     }
 
-    /**
-     * Memvalidasi dan menyimpan data penduduk baru ke database.
-     */
     public function storePenduduk(Request $request): RedirectResponse
     {
         $validatedData = $request->validate($this->pendudukValidationRules());
@@ -96,21 +91,19 @@ class AdminDashboardController extends Controller
             Penduduk::create($validatedData);
             return redirect()->route('admin.penduduk.index')->with('success', 'Data Penduduk berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal menyimpan data.');
+            return back()->withInput()->with('error', 'Gagal menyimpan data. ' . $e->getMessage());
         }
     }
 
-    /**
-     * Menampilkan form untuk mengedit data penduduk yang ada.
-     */
     public function editPenduduk(Penduduk $penduduk): View
     {
-        return view('admin.edit_penduduk', compact('penduduk'));
+        $rws = Rw::orderBy('nomor_rw')->get();
+        $selectedRw = Rw::find($penduduk->rw);
+        $selectedRt = Rt::find($penduduk->rt);
+
+        return view('admin.edit_penduduk', compact('penduduk', 'rws', 'selectedRw', 'selectedRt'));
     }
 
-    /**
-     * Memvalidasi dan menyimpan perubahan data penduduk ke database.
-     */
     public function updatePenduduk(Request $request, Penduduk $penduduk): RedirectResponse
     {
         $validatedData = $request->validate($this->pendudukValidationRules($penduduk->id));
@@ -119,13 +112,10 @@ class AdminDashboardController extends Controller
             $penduduk->update($validatedData);
             return redirect()->route('admin.penduduk.index')->with('success', 'Data Penduduk berhasil diperbarui!');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal memperbarui data.');
+            return back()->withInput()->with('error', 'Gagal memperbarui data. ' . $e->getMessage());
         }
     }
 
-    /**
-     * Menghapus data penduduk dari database.
-     */
     public function destroyPenduduk(Penduduk $penduduk): RedirectResponse
     {
         try {
@@ -136,135 +126,47 @@ class AdminDashboardController extends Controller
         }
     }
 
-    /**
-     * Aturan validasi untuk data penduduk.
-     */
     private function pendudukValidationRules(int $ignoreId = null): array
     {
-        $nikRule = 'required|string|unique:penduduks,nik|max:16|min:16';
-
-        if ($ignoreId) {
-            $nikRule = ['required', 'string', 'max:16', 'min:16', Rule::unique('penduduks', 'nik')->ignore($ignoreId)];
-        }
+        $nikRule = [
+            'required',
+            'string',
+            'digits:16',
+            Rule::unique('penduduks', 'nik')->ignore($ignoreId),
+        ];
 
         return [
             'nama_lengkap' => 'required|string|max:255',
             'nik' => $nikRule,
-            'nomor_kk' => 'nullable|string|max:16|min:16',
-            'tanggal_lahir' => 'required|date',
+            'nomor_kk' => 'nullable|string|digits:16',
+            'tanggal_lahir' => 'required|date|before_or_equal:today',
             'jenis_kelamin' => 'required|string|in:Laki-laki,Perempuan',
-            'rt' => 'required|string|max:3',
-            'rw' => 'required|string|max:3',
+            'rw' => 'required|exists:rws,id',
+            'rt' => 'required|exists:rts,id',
             'pekerjaan' => 'nullable|string|max:255',
             'pendidikan_terakhir' => 'nullable|string|max:255',
             'agama' => 'nullable|string|max:50',
         ];
     }
 
-
-    // =================================================================
-    // MANAJEMEN PERANGKAT DESA
-    // =================================================================
-
     /**
-     * Menampilkan halaman daftar perangkat desa (RT/RW).
+     * =============================
+     * API UNTUK DROPDOWN DINAMIS RT
+     * =============================
      */
-    public function indexPerangkat(): View
+    public function getRtByRw($rw_id)
     {
-        $perangkats = Perangkat::orderBy('jabatan')->get();
-        $jumlahPendudukPerWilayah = Penduduk::select('rt', 'rw', DB::raw('count(*) as total'))
-            ->groupBy('rt', 'rw')
-            ->get()->keyBy(fn ($item) => trim($item->rt) . '/' . trim($item->rw));
+        $rts = Rt::where('rw_id', $rw_id)
+            ->orderBy('nomor_rt', 'asc')
+            ->get(['id', 'nomor_rt']);
 
-        foreach ($perangkats as $perangkat) {
-            preg_match('/(\d+)\/(\d+)/', $perangkat->jabatan, $matches);
-            $rt_rw_key = !empty($matches) ? trim($matches[1]) . '/' . trim($matches[2]) : null;
-            $perangkat->jumlah_penduduk = $jumlahPendudukPerWilayah[$rt_rw_key]->total ?? 0;
-        }
-
-        $totalRT = $perangkats->filter(fn($p) => str_contains(strtoupper($p->jabatan), 'RT'))->count();
-        $totalRW = $perangkats->filter(fn($p) => str_contains(strtoupper($p->jabatan), 'RW'))->count();
-
-        return view('admin.data_perangkat_index', compact('perangkats', 'totalRT', 'totalRW'));
+        return response()->json($rts);
     }
 
     /**
-     * Menampilkan form untuk menambah data perangkat desa baru.
-     */
-    public function createPerangkat(): View
-    {
-        return view('admin.input_perangkat');
-    }
-
-    /**
-     * Memvalidasi dan menyimpan data perangkat desa baru.
-     */
-    public function storePerangkat(Request $request): RedirectResponse
-    {
-        $validatedData = $request->validate($this->perangkatValidationRules());
-        try {
-            Perangkat::create($validatedData);
-            return redirect()->route('admin.perangkat.index')->with('success', 'Data Perangkat berhasil ditambahkan!');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal menyimpan data.');
-        }
-    }
-
-    /**
-     * Menampilkan form untuk mengedit data perangkat desa.
-     */
-    public function editPerangkat(Perangkat $perangkat): View
-    {
-        return view('admin.edit_perangkat', compact('perangkat'));
-    }
-
-    /**
-     * Memvalidasi dan menyimpan perubahan data perangkat desa.
-     */
-    public function updatePerangkat(Request $request, Perangkat $perangkat): RedirectResponse
-    {
-        $validatedData = $request->validate($this->perangkatValidationRules());
-        try {
-            $perangkat->update($validatedData);
-            return redirect()->route('admin.perangkat.index')->with('success', 'Data Perangkat berhasil diperbarui!');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal memperbarui data.');
-        }
-    }
-
-    /**
-     * Menghapus data perangkat desa dari database.
-     */
-    public function destroyPerangkat(Perangkat $perangkat): RedirectResponse
-    {
-        try {
-            $perangkat->delete();
-            return redirect()->route('admin.perangkat.index')->with('success', 'Data perangkat berhasil dihapus!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus data.');
-        }
-    }
-    
-    /**
-     * Aturan validasi untuk data perangkat desa.
-     */
-    private function perangkatValidationRules(): array
-    {
-        return [
-            'nama' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|string|max:15',
-            'wilayah' => 'nullable|string|max:255',
-        ];
-    }
-
-
-    // =================================================================
-    // MANAJEMEN KOMODITAS
-    // =================================================================
-
-    /**
-     * Menampilkan halaman daftar komoditas.
+     * =============================
+     * MANAJEMEN KOMODITAS
+     * =============================
      */
     public function indexKomoditas(): View
     {
@@ -275,66 +177,36 @@ class AdminDashboardController extends Controller
         return view('admin.data_komoditas_index', compact('komoditas', 'totalKomoditas', 'totalKategori'));
     }
 
-    /**
-     * Menampilkan form untuk menambah data komoditas baru.
-     */
     public function createKomoditas(): View
     {
         return view('admin.input_komoditas');
     }
 
-    /**
-     * Memvalidasi dan menyimpan data komoditas baru.
-     */
     public function storeKomoditas(Request $request): RedirectResponse
     {
         $validatedData = $request->validate($this->komoditasValidationRules());
-        try {
-            Komoditas::create($validatedData);
-            return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil ditambahkan!');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal menyimpan data komoditas.');
-        }
+        Komoditas::create($validatedData);
+        return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit data komoditas.
-     */
     public function editKomoditas(Komoditas $komoditas): View
     {
         return view('admin.edit_komoditas', compact('komoditas'));
     }
 
-    /**
-     * Memvalidasi dan menyimpan perubahan data komoditas.
-     */
     public function updateKomoditas(Request $request, Komoditas $komoditas): RedirectResponse
     {
         $validatedData = $request->validate($this->komoditasValidationRules());
-        try {
-            $komoditas->update($validatedData);
-            return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil diperbarui!');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal memperbarui data komoditas.');
-        }
+        $komoditas->update($validatedData);
+        return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus data komoditas dari database.
-     */
     public function destroyKomoditas(Komoditas $komoditas): RedirectResponse
     {
-        try {
-            $komoditas->delete();
-            return redirect()->route('admin.komoditas.index')->with('success', 'Data komoditas berhasil dihapus!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus data komoditas.');
-        }
+        $komoditas->delete();
+        return redirect()->route('admin.komoditas.index')->with('success', 'Data komoditas berhasil dihapus!');
     }
 
-    /**
-     * Aturan validasi untuk data komoditas.
-     */
     private function komoditasValidationRules(): array
     {
         return [
@@ -348,23 +220,80 @@ class AdminDashboardController extends Controller
         ];
     }
 
-
-    // =================================================================
-    // MANAJEMEN BANGUNAN
-    // =================================================================
-
     /**
-     * Menampilkan halaman daftar bangunan (menggunakan data dummy).
+     * =============================
+     * CRUD BANGUNAN
+     * =============================
      */
-    public function indexBangunan(): View
+   public function indexBangunan(): View
     {
-        // TODO: Ganti dengan implementasi data bangunan dari database.
-        $bangunans = collect([
-            (object)['id' => 1, 'nama' => 'SDN Sukorame', 'jenis' => 'Pendidikan', 'koordinat' => '-7.8, 112.5'],
-            (object)['id' => 2, 'nama' => 'Puskesmas', 'jenis' => 'Kesehatan', 'koordinat' => '-7.8, 112.5'],
-        ]);
-        $stat = ['rt' => 12, 'rw' => 45, 'luas' => 8.2];
+        $bangunans = Bangunan::latest()->paginate(10);
+        $totalBangunan = Bangunan::count();
+        return view('admin.data_bangunan_index', compact('bangunans', 'totalBangunan'));
+    }
 
-        return view('admin.data_bangunan_index', compact('bangunans', 'stat'));
+    public function createBangunan(): View
+    {
+        // Kirim data RW dan RT untuk dropdown
+        $rws = Rw::orderBy('nomor_rw', 'asc')->get();
+        $rts = Rt::orderBy('nomor_rt', 'asc')->get();
+        return view('admin.input_bangunan', compact('rws', 'rts'));
+    }
+
+    public function storeBangunan(Request $request): RedirectResponse
+    {
+        $validatedData = $request->validate([
+            'nama_bangunan' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'rw_id' => 'nullable|exists:rws,id',
+            'rt_id' => 'nullable|exists:rts,id',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('bangunan_fotos', 'public');
+            $validatedData['foto'] = $path;
+        }
+
+        Bangunan::create($validatedData);
+        return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil ditambahkan!');
+    }
+
+    public function editBangunan(Bangunan $bangunan): View
+    {
+        $rws = Rw::orderBy('nomor_rw', 'asc')->get();
+        $rts = Rt::orderBy('nomor_rt', 'asc')->get();
+        return view('', compact('bangunan', 'rws', 'rts'));
+    }
+
+    public function updateBangunan(Request $request, Bangunan $bangunan): RedirectResponse
+    {
+        $validatedData = $request->validate([
+            'nama_bangunan' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'rw_id' => 'nullable|exists:rws,id',
+            'rt_id' => 'nullable|exists:rts,id',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('bangunan_fotos', 'public');
+            $validatedData['foto'] = $path;
+        }
+
+        $bangunan->update($validatedData);
+        return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil diperbarui!');
+    }
+
+    public function destroyBangunan(Bangunan $bangunan): RedirectResponse
+    {
+        $bangunan->delete();
+        return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil dihapus!');
     }
 }
