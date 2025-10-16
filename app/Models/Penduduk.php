@@ -25,4 +25,14 @@ class Penduduk extends Model
     protected $casts = [
         'tanggal_lahir' => 'date', // Penting untuk perhitungan usia
     ];
+
+    public function rw()
+    {
+        return $this->belongsTo(Rw::class, 'rw_id');
+    }
+
+    public function rt()
+    {
+        return $this->belongsTo(Rt::class, 'rt_id');
+    }
 }
