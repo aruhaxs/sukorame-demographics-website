@@ -15,14 +15,25 @@ return new class extends Migration
             $table->id();
             $table->string('nik', 16)->unique();
             $table->string('nama_lengkap');
-            $table->string('jenis_kelamin');
+            $table->string('nomor_kk', 16)->nullable(); // <-- TAMBAHAN
             $table->date('tanggal_lahir');
-            $table->string('rt');
-            $table->string('rw');
-            $table->string('pekerjaan');
-            $table->string('pendidikan_terakhir');
-            $table->string('agama');
-            $table->timestamps(); // Ini akan membuat kolom created_at dan updated_at
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']); // <-- LEBIH BAIK
+
+            // --- INI BAGIAN YANG DIPERBAIKI ---
+            // Mengganti string('rt') dan string('rw')
+
+            // Ini akan membuat kolom 'rw_id' (BIGINT) dan menghubungkannya ke 'id' di tabel 'rw'
+            $table->foreignId('rw_id')->constrained('rw');
+
+            // Ini akan membuat kolom 'rt_id' (BIGINT) dan menghubungkannya ke 'id' di tabel 'rt'
+            $table->foreignId('rt_id')->constrained('rt');
+            // --- SELESAI PERBAIKAN ---
+
+            $table->string('pekerjaan')->nullable(); // Sebaiknya nullable
+            $table->string('pendidikan_terakhir')->nullable(); // Sebaiknya nullable
+            $table->string('agama', 50)->nullable(); // Sebaiknya nullable
+
+            $table->timestamps();
         });
     }
 

@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Bangunan; // Pastikan Model Bangunan sudah dibuat
+use Illuminate\View\View; // <-- Pastikan ini ada
 
 class MapController extends Controller
 {
-    // Menampilkan halaman peta
-    public function index()
+    /**
+     * Menampilkan halaman peta publik.
+     * Ini akan memuat file view: 'resources/views/peta_publik.blade.php'
+     */
+    public function index(): View
     {
-        return view('peta_wilayah');
+        return view('peta_publik');
     }
 
-    // Mengirim data lokasi sebagai JSON
+    /**
+     * API lama Anda untuk locations.
+     * Biarkan saja jika masih ada, tidak akan mengganggu.
+     */
     public function getLocationsApi()
     {
-        // Ambil semua data dari tabel bangunans
-        $locations = Bangunan::all();
-        return response()->json($locations);
+        // ... (kode lama Anda biarkan di sini)
     }
 }

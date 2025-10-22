@@ -45,12 +45,14 @@
         });
 
         // Saat form reload (validasi gagal), isi ulang nilai lama
-        const oldRwValue = "{{ old('rw') }}";
-        const oldRtValue = "{{ old('rt') }}";
+        // === PERBAIKAN: Gunakan 'rw_id' dan 'rt_id' ===
+        const oldRwValue = "{{ old('rw_id') }}";
+        const oldRtValue = "{{ old('rt_id') }}";
         if (oldRwValue) {
             rwSelect.value = oldRwValue;
             rwSelect.dispatchEvent(new Event('change'));
             setTimeout(() => {
+                // Tunggu fetch selesai, baru set nilai RT
                 if (oldRtValue) rtSelect.value = oldRtValue;
             }, 600);
         }
@@ -132,6 +134,20 @@
         margin-top: 5px;
         font-size: 0.85rem;
     }
+    /* === BARU: Blok untuk pesan validasi === */
+    .validation-summary {
+        padding: 1rem;
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .validation-summary ul {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+        padding-left: 1.2rem;
+    }
     .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -142,10 +158,20 @@
 <div class="form-card">
     <h2>Tambah Data Penduduk Baru</h2>
 
+    @if ($errors->any())
+        <div class="validation-summary">
+            <strong>Data yang dimasukkan tidak valid:</strong>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
-
     <form action="{{ route('admin.penduduk.store') }}" method="POST">
         @csrf
 
@@ -195,24 +221,26 @@
 
         <div class="grid-2">
             <div class="form-group">
-                <label for="rw">RW</label>
-                <select name="rw" id="rw" class="form-select" required>
+                {{-- === PERBAIKAN: Gunakan 'rw_id' === --}}
+                <label for="rw_id">RW</label>
+                <select name="rw_id" id="rw" class="form-select" required>
                     <option value="">-- Pilih RW --</option>
                     @foreach($rws as $rw)
-                        <option value="{{ $rw->id }}" {{ old('rw') == $rw->id ? 'selected' : '' }}>
+                        <option value="{{ $rw->id }}" {{ old('rw_id') == $rw->id ? 'selected' : '' }}>
                             {{ $rw->nomor_rw }}
                         </option>
                     @endforeach
                 </select>
-                @error('rw') <div class="alert-error">{{ $message }}</div> @enderror
+                @error('rw_id') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
 
             <div class="form-group">
-                <label for="rt">RT</label>
-                <select name="rt" id="rt" class="form-select" required disabled>
+                 {{-- === PERBAIKAN: Gunakan 'rt_id' === --}}
+                <label for="rt_id">RT</label>
+                <select name="rt_id" id="rt" class="form-select" required disabled>
                     <option value="">-- Pilih RW Terlebih Dahulu --</option>
                 </select>
-                @error('rt') <div class="alert-error">{{ $message }}</div> @enderror
+                @error('rt_id') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
         </div>
 
