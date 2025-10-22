@@ -20,6 +20,8 @@
         --color-danger: #e53e3e;
     }
 
+    /* ... (CSS Anda yang lain tetap sama) ... */
+
     /* == Bagian Header Halaman == */
     .header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;}
     .admin-title { font-size: 1.8rem; font-weight: 600; color: var(--color-text-light); }
@@ -27,16 +29,18 @@
     .btn-tambah-data:hover { background-color: #0d8259; }
 
     /* == Peta & Card Ringkasan == */
-    #map { height: 500px; width: 100%; border-radius: 12px; margin-bottom: 2.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    #map { height: 500px; width: 100%; border-radius: 12px; margin-bottom: 2.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1; }
     .summary-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
     .summary-card { background-color: var(--color-bg-card); padding: 1.5rem; border-radius: 12px; text-align: center; border-left: 5px solid var(--color-primary); }
     .summary-card h4 { margin: 0 0 0.5rem 0; color: var(--color-text-subtle); text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px; }
     .summary-card .value { font-size: 2.5rem; font-weight: 700; color: var(--color-primary-light); }
+
+    /* == STYLING POPUP (Sudah disesuaikan dengan CSS Anda) == */
     .leaflet-popup-content-wrapper { background: var(--color-bg-card); color: var(--color-text-light); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
     .leaflet-popup-content-wrapper .leaflet-popup-content { line-height: 1.6; }
     .leaflet-popup-content-wrapper .popup-title { font-size: 1.2rem; font-weight: bold; color: var(--color-primary-light); margin-bottom: 8px; border-bottom: 1px solid var(--color-border); padding-bottom: 5px; }
     .leaflet-popup-content-wrapper .popup-category { font-size: 0.8rem; font-weight: bold; background-color: var(--color-primary); color: var(--color-text-light); padding: 3px 8px; border-radius: 12px; display: inline-block; margin-bottom: 8px; }
-    .leaflet-popup-content-wrapper img { max-width: 100%; height: auto; border-radius: 6px; margin-top: 10px; }
+    .leaflet-popup-content-wrapper img { width: 100%; height: auto; border-radius: 6px; margin-top: 10px; }
     .leaflet-popup-tip { background: var(--color-bg-card); }
 
     /* == STYLING TABEL PROFESIONAL == */
@@ -139,44 +143,91 @@
             </tbody>
         </table>
     </div>
-    {{-- ✅ PERBAIKAN: Menggunakan variabel $bangunans (plural) --}}
+
     <div class="pagination-wrapper">
         {{ $bangunans->links() }}
     </div>
 </section>
 @endsection
 
-{{-- Menambahkan script Leaflet.js di akhir body --}}
+{{--
+======================================================================
+SCRIPT PETA YANG DIPERBARUI
+======================================================================
+--}}
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
 
 <script>
-    const mapCenter = [-7.8180, 112.0185];
-    const map = L.map('map').setView(mapCenter, 16);
+    document.addEventListener('DOMContentLoaded', function () {
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+        // --- 1. Inisialisasi Peta ---
+        const mapCenter = [-7.8180, 112.0185]; // Sesuaikan titik tengah peta Anda
+        const map = L.map('map').setView(mapCenter, 16); // Sesuaikan zoom awal
 
-    const bangunanData = @json($bangunansForMap);
+        // --- 2. Tambahkan Tile Layer (Peta Dasar) ---
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
 
-    bangunanData.forEach(function(bangunan) {
-        if (bangunan.latitude && bangunan.longitude) {
-            const marker = L.marker([bangunan.latitude, bangunan.longitude]).addTo(map);
-            let popupContent = `
-                <div class="popup-title">${bangunan.nama_bangunan}</div>
-                <div class="popup-category">${bangunan.kategori}</div>
-                <p>${bangunan.deskripsi || 'Tidak ada deskripsi.'}</p>
-            `;
-            if (bangunan.foto) {
-                const imageUrl = `{{ asset('storage') }}/${bangunan.foto}`;
-                popupContent += `<img src="${imageUrl}" alt="Foto ${bangunan.nama_bangunan}">`;
-            }
-            marker.bindPopup(popupContent);
-        }
+
+        // --- 3. Memuat Batas Wilayah (GeoJSON Statis) ---
+
+        // ====================== PERUBAHAN DI SINI ======================
+        const styleBatas = {
+            "color": "#e53e3e",     // WARNA MERAH (dari --color-danger)
+            "weight": 3,            // Ketebalan garis
+            "opacity": 0.8,         // Opasitas garis
+            "fillColor": "#e53e3e",  // Warna isian (merah)
+            "fillOpacity": 0.2      // Opasitas isian (sedikit lebih tebal)
+        };
+        // ===============================================================
+
+        // Ganti 'sukorame_boundary.geojson' dengan nama file Anda di public/geojson/
+        fetch("{{ asset('geojson/sukorame_boundary.geojson') }}")
+            .then(response => {
+                if (!response.ok) throw new Error('File batas wilayah tidak ditemukan.');
+                return response.json();
+            })
+            .then(data => {
+                L.geoJSON(data, { style: styleBatas }).addTo(map);
+
+                // (Opsional) Zoom peta agar pas dengan batas wilayah
+                map.fitBounds(L.geoJSON(data).getBounds().pad(0.1));
+            })
+            .catch(error => console.error('Error loading boundary GeoJSON:', error));
+
+        // --- 4. Memuat Titik Bangunan (GeoJSON Dinamis dari API) ---
+        // Ini memanggil API /api/bangunan-map yang kita buat
+        fetch('{{ route('api.bangunan.map') }}')
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal mengambil data bangunan.');
+                return response.json();
+            })
+            .then(geoJsonData => {
+                L.geoJSON(geoJsonData, {
+                    onEachFeature: function (feature, layer) {
+                        const props = feature.properties;
+
+                        // Buat konten popup menggunakan kelas CSS Anda
+                        const popupContent = `
+                            <div class="popup-title">${props.nama}</div>
+                            <div class="popup-category">${props.kategori}</div>
+                            <p>${props.deskripsi || 'Tidak ada deskripsi.'}</p>
+                            <img src="${props.foto_url}" alt="Foto ${props.nama}">
+                        `;
+                        layer.bindPopup(popupContent);
+                    }
+                }).addTo(map);
+            })
+            .catch(error => {
+                console.error('Error fetching map data:', error);
+                document.getElementById('map').innerHTML = '<p style="text-align:center; padding: 20px; color: var(--color-danger);">Gagal memuat data titik bangunan.</p>';
+            });
+
     });
 </script>
 @endpush

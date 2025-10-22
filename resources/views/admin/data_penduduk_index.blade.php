@@ -85,7 +85,11 @@
         {{-- Konten kartu data penduduk --}}
         <h3>{{ $p->nama_lengkap }}</h3>
         <p><strong>NIK:</strong> {{ $p->nik }}</p>
-        <p><strong>Alamat:</strong> RT {{ $p->rt }}/RW {{ $p->rw }}</p>
+        <p>
+            Alamat:
+            RT {{ optional($p->rt)->nomor_rt ?? 'N/A' }} /
+            RW {{ optional($p->rw)->nomor_rw ?? 'N/A' }}
+        </p>
         <div class="card-actions">
             <a href="{{ route('admin.penduduk.edit', $p) }}" class="btn-card edit">Edit</a>
             <form action="{{ route('admin.penduduk.destroy', $p) }}" method="POST" style="flex-grow: 1;">
