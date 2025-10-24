@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nomor_kk', 16)->nullable();
             $table->string('nik', 16)->unique();
             $table->string('nama_lengkap');
-            $table->string('jenis_kelamin');
+            $table->string('nomor_kk', 16)->nullable();
             $table->date('tanggal_lahir');
             $table->foreignId('rw_id')->constrained('rw')->onDelete('cascade');
             $table->foreignId('rt_id')->constrained('rt')->onDelete('cascade');

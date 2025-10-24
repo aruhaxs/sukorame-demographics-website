@@ -53,6 +53,7 @@
 
             // Beri sedikit waktu agar data RT selesai dimuat sebelum memilih nilai lama
             setTimeout(() => {
+                // Tunggu fetch selesai, baru set nilai RT
                 if (oldRtValue) rtSelect.value = oldRtValue;
             }, 500); // 500ms delay
         }
@@ -83,10 +84,20 @@
 <div class="form-card">
     <h2>Tambah Data Penduduk Baru</h2>
 
+    @if ($errors->any())
+        <div class="validation-summary">
+            <strong>Data yang dimasukkan tidak valid:</strong>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
-
     <form action="{{ route('admin.penduduk.store') }}" method="POST">
         @csrf
 

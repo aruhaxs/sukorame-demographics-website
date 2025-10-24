@@ -14,7 +14,7 @@ class Penduduk extends Model
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-     */
+gi     */
     protected $fillable = [
         'nama_lengkap',
         'nomor_kk',

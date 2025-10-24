@@ -11,7 +11,7 @@
             <div class="dropdown-content">
                 <a href="{{ route('demografi.index') }}">PENDUDUK</a>
                 <a href="{{ route('peta.index') }}">WILAYAH</a>
-                <a href="#">KOMODITAS</a>
+                <a href="{{ route('komoditas.publik') }}">KOMODITAS</a>
             </div>
         </li>
         <li><a href="#profile-section">PROFIL</a></li>

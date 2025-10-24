@@ -6,7 +6,6 @@
 
 @push('styles')
 <style>
-    /* == PINE GREEN THEME (Konsisten) == */
     :root {
         --color-primary: #0a6847;
         --color-primary-light: #7aba78;
@@ -18,7 +17,6 @@
         --color-danger: #e53e3e;
     }
 
-    /* == HEADER, SEARCH & STATS == */
     .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; }
     .admin-title { font-size: 1.8rem; font-weight: 600; color: var(--color-text-light); }
     .header-actions { display: flex; gap: 1rem; align-items: center; }
@@ -97,7 +95,6 @@
                 <p><strong>NIK:</strong> {{ $p->nik }}</p>
                 <p><strong>No. KK:</strong> {{ $p->nomor_kk ?? '-' }}</p>
                 <p><strong>Alamat:</strong>
-                    {{-- ✅ PERBAIKAN: Menggunakan relasi untuk menampilkan nomor RT/RW --}}
                     RT {{ optional($p->rt)->nomor_rt ?? 'N/A' }} /
                     RW {{ optional($p->rw)->nomor_rw ?? 'N/A' }}
                 </p>

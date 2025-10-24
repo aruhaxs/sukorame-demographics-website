@@ -1,61 +1,82 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// --- CONTROLLER IMPORTS ---
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DemografiController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\KomoditasPublikController; // <-- DI-AKTIFKAN
 
-Route::get('/peta-wilayah', [MapController::class, 'index'])->name('peta.index');
-Route::get('/api/locations', [MapController::class, 'getLocationsApi'])->name('api.locations');
+// --- ADMIN CONTROLLERS ---
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PendudukController;
+use App\Http\Controllers\Admin\RtRwController;
+use App\Http\Controllers\Admin\KomoditasController;
+use App\Http\Controllers\Admin\BangunanController;
 
-// --- API UNTUK FORM DINAMIS ---
-Route::get('/api/get-rt-by-rw/{rw_id}', [AdminDashboardController::class, 'getRtByRw']);
+// --- API CONTROLLERS ---
+use App\Http\Controllers\Api\WilayahController;
+use App\Http\Controllers\Api\BangunanMapController;
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 // --- ROUTE PUBLIK ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/demografi', [DemografiController::class, 'index'])->name('demografi.index');
 
+// Rute Peta Publik (menggunakan MapController)
+Route::get('/peta-sebaran', [MapController::class, 'index'])->name('peta.publik');
+
+// Rute Komoditas Publik
+Route::get('/komoditas', [KomoditasPublikController::class, 'index'])->name('komoditas.publik'); // <-- DI-AKTIFKAN
+
+// Catatan: Route '/peta-wilayah' lama masih ada jika Anda masih menggunakannya
+Route::get('/peta-wilayah', [MapController::class, 'index'])->name('peta.index');
+
+
 // --- ROUTE UNTUK AUTENTIKASI ---
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// --- ROUTE ADMIN GROUP ---
-Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+// --- ROUTE ADMIN GROUP (TANPA MIDDLEWARE) ---
+Route::prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    // --- FUNGSI CRUD PENDUDUK ---
-    Route::get('/penduduk', [AdminDashboardController::class, 'indexPenduduk'])->name('penduduk.index');
-    Route::get('/penduduk/tambah', [AdminDashboardController::class, 'createPenduduk'])->name('penduduk.create');
-    Route::post('/penduduk', [AdminDashboardController::class, 'storePenduduk'])->name('penduduk.store');
-    Route::get('/penduduk/{penduduk}/edit', [AdminDashboardController::class, 'editPenduduk'])->name('penduduk.edit');
-    Route::put('/penduduk/{penduduk}', [AdminDashboardController::class, 'updatePenduduk'])->name('penduduk.update');
-    Route::delete('/penduduk/{penduduk}', [AdminDashboardController::class, 'destroyPenduduk'])->name('penduduk.destroy');
+    // --- DASHBOARD ---
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // --- FUNGSI CRUD RT/RW ---
-    Route::get('/rt-rw', [AdminDashboardController::class, 'indexRtRw'])->name('rt-rw.index');
-    Route::get('/rt-rw/create', [AdminDashboardController::class, 'createRtRw'])->name('rt-rw.create');
-    Route::post('/rt-rw', [AdminDashboardController::class, 'storeRtRw'])->name('rt-rw.store');
-    Route::get('/rt-rw/{type}/{id}/edit', [AdminDashboardController::class, 'editRtRw'])->name('rt-rw.edit');
-    Route::put('/rt-rw/{type}/{id}', [AdminDashboardController::class, 'updateRtRw'])->name('rt-rw.update');
-    Route::delete('/rt-rw/{type}/{id}', [AdminDashboardController::class, 'destroyRtRw'])->name('rt-rw.destroy');
+    // --- CRUD PENDUDUK (Menggunakan Route Resource) ---
+    Route::resource('penduduk', PendudukController::class);
 
-    // --- FUNGSI CRUD KOMODITAS ---
-    Route::get('/komoditas', [AdminDashboardController::class, 'indexKomoditas'])->name('komoditas.index');
-    Route::get('/komoditas/tambah', [AdminDashboardController::class, 'createKomoditas'])->name('komoditas.create');
-    Route::post('/komoditas', [AdminDashboardController::class, 'storeKomoditas'])->name('komoditas.store');
-    Route::get('/komoditas/{komoditas}/edit', [AdminDashboardController::class, 'editKomoditas'])->name('komoditas.edit');
-    Route::put('/komoditas/{komoditas}', [AdminDashboardController::class, 'updateKomoditas'])->name('komoditas.update');
-    Route::delete('/komoditas/{komoditas}', [AdminDashboardController::class, 'destroyKomoditas'])->name('komoditas.destroy');
+    // --- CRUD KOMODITAS (Menggunakan Route Resource) ---
+    Route::resource('komoditas', KomoditasController::class)->except(['show']);
 
-    // --- FUNGSI CRUD BANGUNAN ---
-    Route::get('/bangunan', [AdminDashboardController::class, 'indexBangunan'])->name('bangunan.index');
-    Route::get('/bangunan/create', [AdminDashboardController::class, 'createBangunan'])->name('bangunan.create');
-    Route::post('/bangunan/store', [AdminDashboardController::class, 'storeBangunan'])->name('bangunan.store');
-    Route::get('/bangunan/{bangunan}/edit', [AdminDashboardController::class, 'editBangunan'])->name('bangunan.edit');
-    Route::put('/bangunan/{bangunan}', [AdminDashboardController::class, 'updateBangunan'])->name('bangunan.update');
-    Route::delete('/bangunan/{bangunan}', [AdminDashboardController::class, 'destroyBangunan'])->name('bangunan.destroy');
+    // --- CRUD BANGUNAN (Menggunakan Route Resource) ---
+    Route::resource('bangunan', BangunanController::class)->except(['show']);
 
+    // --- FUNGSI CRUD RT/RW (Didefinisikan manual) ---
+    Route::prefix('rt-rw')->name('rt-rw.')->group(function () {
+        Route::get('/', [RtRwController::class, 'index'])->name('index');
+        Route::get('/create', [RtRwController::class, 'create'])->name('create');
+        Route::post('/', [RtRwController::class, 'store'])->name('store');
+        Route::get('/{type}/{id}/edit', [RtRwController::class, 'edit'])->name('edit');
+        Route::put('/{type}/{id}', [RtRwController::class, 'update'])->name('update');
+        Route::delete('/{type}/{id}', [RtRwController::class, 'destroy'])->name('destroy');
+    });
 });
+
+
+// --- ROUTE UNTUK API ---
+Route::get('/api/get-rt-by-rw/{rw_id}', [WilayahController::class, 'getRtByRw'])->name('api.getRtByRw');
+Route::get('/api/bangunan-map', [BangunanMapController::class, 'getGeoJson'])->name('api.bangunan.map');
+Route::get('/api/locations', [MapController::class, 'getLocationsApi'])->name('api.locations');
