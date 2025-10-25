@@ -10,11 +10,16 @@ class Penduduk extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'nik';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-gi     */
+     */
     protected $fillable = [
         'nama_lengkap',
         'nomor_kk',

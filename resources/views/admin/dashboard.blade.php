@@ -52,7 +52,7 @@
     </div>
     <div class="summary-card">
         <p>Total RT & RW</p>
-        <p class="value">{{ $data['total_rt_rw'] }}</p>
+        <p class="value">{{ $data['total_rt_rw'] ?? 0 }}</p>
     </div>
     <div class="summary-card">
         <p>Total Komoditas</p>
@@ -88,7 +88,6 @@
         const textColor = 'rgba(240, 248, 255, 0.8)'; // Warna teks (Alice Blue transparan)
         const gridColor = 'rgba(255, 255, 255, 0.1)'; // Warna garis grid
 
-        // --- Render Grafik Jenis Kelamin (Doughnut Chart) ---
         const ctxGender = document.getElementById('genderChart').getContext('2d');
         new Chart(ctxGender, {
             type: 'doughnut',
@@ -97,11 +96,10 @@
                 datasets: [{
                     label: 'Total',
                     data: genderChartData.data,
-                    // ✅ PERBAIKAN: Warna disesuaikan dengan data
                     backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)', // Biru untuk Laki-laki
-                        'rgba(255, 99, 132, 0.8)',  // Pink untuk Perempuan
-                        'rgba(201, 203, 207, 0.8)'  // Abu-abu untuk data lain
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(201, 203, 207, 0.8)'
                     ],
                     borderColor: 'var(--color-bg-card)',
                     borderWidth: 4,
