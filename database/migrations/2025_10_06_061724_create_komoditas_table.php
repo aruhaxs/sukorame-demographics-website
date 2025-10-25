@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('komoditas', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_komoditas'); // Nama Komoditas (Padi, Jagung)
-            $table->string('kategori')->nullable(); // Kategori (Pertanian, Peternakan)
-            $table->string('produksi')->nullable(); // Jumlah produksi (misal: 250 ton)
-            $table->string('lokasi')->nullable(); // Lokasi/Daerah (misal: RW 01)
-            $table->string('harga')->nullable(); // Harga jual
+            $table->string('nama_komoditas');
+            $table->string('kategori')->nullable();
+            $table->string('produksi')->nullable();
+            $table->string('lokasi')->nullable();
+            $table->string('harga')->nullable();
             $table->timestamps();
         });
     }

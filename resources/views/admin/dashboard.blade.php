@@ -4,121 +4,115 @@
 
 @section('content')
 <style>
-    /* ... (semua style yang sudah ada tetap di sini) ... */
-    .page-container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-    .page-title { font-size: 2rem; margin-bottom: 1rem; font-weight: 600; }
-    .summary-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 1.5rem; }
-    .summary-card { background-color: #1c3d64; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); color: #f0f0f0; transition: transform 0.2s ease-in-out; }
-    .summary-card:hover { transform: translateY(-5px); }
-    .summary-card p { margin: 0; font-size: 1rem; }
-    .summary-card .value { font-size: 2.5rem; font-weight: 700; color: #4BC0C0; margin-top: 8px; }
-    .alert-success { background-color: #4BC0C0; color: #1c3d64; padding: 15px; border-radius: 5px; margin-bottom: 1.5rem; font-weight: 500; }
-    
-    /* --- STYLE BARU UNTUK GRAFIK --- */
-    .chart-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-top: 2.5rem;
-    }
-    .chart-container {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .chart-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #1c3d64;
-        margin-bottom: 1rem;
-        text-align: center;
+    /* == PINE GREEN THEME == */
+    :root {
+        --color-primary: #0a6847;
+        --color-primary-light: #7aba78;
+        --color-bg-dark: #0d1b2a;
+        --color-bg-card: #1b263b;
+        --color-text-light: #f0f8ff;
+        --color-text-subtle: #a0aec0;
+        --color-border: #4a5568;
     }
 
-    @media (max-width: 768px) {
-        .page-container { padding: 1rem; }
-        .page-title { font-size: 1.5rem; }
-        .summary-card .value { font-size: 2rem; }
+    /* == Tata Letak Utama == */
+    .admin-title { font-size: 1.8rem; font-weight: 600; color: var(--color-text-light); margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;}
+    .alert-success { background-color: var(--color-primary); color: var(--color-text-light); padding: 15px; border-radius: 8px; margin-bottom: 2rem; font-weight: 500; }
+    
+    /* == Kartu Ringkasan == */
+    .summary-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+    .summary-card { background-color: var(--color-bg-card); padding: 1.5rem; border-radius: 12px; text-align: center; border-left: 5px solid var(--color-primary); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .summary-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+    .summary-card p { margin: 0 0 0.5rem 0; color: var(--color-text-subtle); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+    .summary-card .value { font-size: 2.5rem; font-weight: 700; color: var(--color-primary-light); }
+    
+    /* == Visualisasi Data / Grafik == */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; }
+    .chart-container { background-color: var(--color-bg-card); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .chart-title { font-size: 1.2rem; font-weight: 600; color: var(--color-primary-light); margin-bottom: 1.5rem; text-align: center; }
+
+    @media (max-width: 992px) {
+        .chart-grid { grid-template-columns: 1fr; }
     }
 </style>
 
-<div class="page-container">
+{{-- JUDUL HALAMAN --}}
+<h1 class="admin-title">Dashboard</h1>
 
-    {{-- AREA NOTIFIKASI --}}
-    @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
-    @endif
+{{-- NOTIFIKASI (jika ada) --}}
+@if(session('success'))
+    <div class="alert-success">{{ session('success') }}</div>
+@endif
 
-    {{-- JUDUL HALAMAN --}}
-    <h1 class="page-title">SELAMAT DATANG ADMIN</h1>
-
-    {{-- KARTU RINGKASAN DATA --}}
-    <div class="summary-card-grid">
-        {{-- ... (kartu ringkasan Anda tetap di sini) ... --}}
-        <div class="summary-card">
-            <p>Total Penduduk</p>
-            <p class="value">{{ $data['total_penduduk'] }}</p>
-        </div>
-        <div class="summary-card">
-            <p>Total Perangkat (RT/RW)</p>
-            <p class="value">{{ $data['total_perangkat'] }}</p>
-        </div>
-        <div class="summary-card">
-            <p>Total Komoditas</p>
-            <p class="value">2</p> {{-- Dummy --}}
-        </div>
-        <div class="summary-card">
-            <p>Total Bangunan</p>
-            <p class="value">2</p> {{-- Dummy --}}
-        </div>
+{{-- KARTU RINGKASAN DATA --}}
+<div class="summary-card-grid">
+    <div class="summary-card">
+        <p>Total Penduduk</p>
+        <p class="value">{{ $data['total_penduduk'] }}</p>
     </div>
-
-    {{-- AREA VISUALISASI DATA BARU --}}
-    <div class="chart-grid">
-        <div class="chart-container">
-            <h3 class="chart-title">Penduduk Berdasarkan Jenis Kelamin</h3>
-            <canvas id="genderChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <h3 class="chart-title">Penduduk Berdasarkan Usia</h3>
-            <canvas id="ageChart"></canvas>
-        </div>
+    <div class="summary-card">
+        <p>Total RT & RW</p>
+        <p class="value">{{ $data['total_rt_rw'] ?? 0 }}</p>
+    </div>
+    <div class="summary-card">
+        <p>Total Komoditas</p>
+        <p class="value">{{ $data['total_komoditas'] }}</p>
+    </div>
+    <div class="summary-card">
+        <p>Total Bangunan</p>
+        <p class="value">{{ $data['total_bangunan'] }}</p>
     </div>
 </div>
 
-{{-- Tambahkan library Chart.js dan skrip untuk render grafik --}}
+{{-- AREA VISUALISASI DATA --}}
+<div class="chart-grid">
+    <div class="chart-container">
+        <h3 class="chart-title">Penduduk Berdasarkan Jenis Kelamin</h3>
+        <canvas id="genderChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3 class="chart-title">Penduduk Berdasarkan Kelompok Usia</h3>
+        <canvas id="ageChart"></canvas>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Data dari Controller (diubah dari PHP ke JavaScript oleh Blade)
         const genderChartData = @json($genderChartData);
         const ageChartData = @json($ageChartData);
 
-        // --- Render Grafik Jenis Kelamin (Pie Chart) ---
+        const textColor = 'rgba(240, 248, 255, 0.8)'; // Warna teks (Alice Blue transparan)
+        const gridColor = 'rgba(255, 255, 255, 0.1)'; // Warna garis grid
+
         const ctxGender = document.getElementById('genderChart').getContext('2d');
         new Chart(ctxGender, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: genderChartData.labels,
                 datasets: [{
                     label: 'Total',
                     data: genderChartData.data,
                     backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)', // Biru
-                        'rgba(255, 99, 132, 0.8)',  // Merah muda
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(201, 203, 207, 0.8)'
                     ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 99, 132, 1)',
-                    ],
-                    borderWidth: 1
+                    borderColor: 'var(--color-bg-card)',
+                    borderWidth: 4,
+                    hoverOffset: 10
                 }]
             },
             options: {
                 responsive: true,
+                cutout: '70%',
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'bottom',
+                        labels: { color: textColor }
                     }
                 }
             }
@@ -133,25 +127,47 @@
                 datasets: [{
                     label: 'Jumlah Penduduk',
                     data: ageChartData.data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    // ✅ PERBAIKAN: Menggunakan array warna berbeda untuk setiap bar
+                    backgroundColor: [
+                        'rgba(122, 186, 120, 0.8)', // Hijau muda (Anak-anak)
+                        'rgba(10, 104, 71, 0.8)',   // Hijau tua (Remaja)
+                        'rgba(54, 162, 235, 0.8)',  // Biru (Dewasa)
+                        'rgba(75, 85, 99, 0.8)'     // Abu-abu tua (Lansia)
+                    ],
+                    borderColor: [ // Border disesuaikan dengan warna bar
+                        'rgb(122, 186, 120)',
+                        'rgb(10, 104, 71)',
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 85, 99)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: 'transparent' }
                     }
                 },
                 plugins: {
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 12 },
+                        padding: 10
                     }
                 }
             }
         });
     });
 </script>
-@endsection
+@endpush

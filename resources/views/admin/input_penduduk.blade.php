@@ -5,8 +5,8 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const rwSelect = document.getElementById('rw');
-        const rtSelect = document.getElementById('rt');
+        const rwSelect = document.getElementById('rw_id');
+        const rtSelect = document.getElementById('rt_id');
 
         rwSelect.addEventListener('change', function () {
             const rwId = this.value;
@@ -14,7 +14,6 @@
             rtSelect.disabled = true;
 
             if (rwId) {
-                // Ambil data RT berdasarkan RW yang dipilih
                 fetch(`/api/get-rt-by-rw/${rwId}`)
                     .then(response => {
                         if (!response.ok) throw new Error('Gagal mengambil data RT.');
@@ -26,7 +25,7 @@
                         if (data.length > 0) {
                             data.forEach(rt => {
                                 const option = document.createElement('option');
-                                option.value = rt.id; // ✅ gunakan id sebagai value (bukan nomor_rt)
+                                option.value = rt.id;
                                 option.textContent = `RT ${rt.nomor_rt}`;
                                 rtSelect.appendChild(option);
                             });
@@ -44,17 +43,19 @@
             }
         });
 
-        // Saat form reload (validasi gagal), isi ulang nilai lama
-        // === PERBAIKAN: Gunakan 'rw_id' dan 'rt_id' ===
+        // ✅ PERBAIKAN: Gunakan old('rw_id') dan old('rt_id')
         const oldRwValue = "{{ old('rw_id') }}";
         const oldRtValue = "{{ old('rt_id') }}";
         if (oldRwValue) {
             rwSelect.value = oldRwValue;
+            // Memicu event 'change' untuk memuat data RT yang sesuai
             rwSelect.dispatchEvent(new Event('change'));
+
+            // Beri sedikit waktu agar data RT selesai dimuat sebelum memilih nilai lama
             setTimeout(() => {
                 // Tunggu fetch selesai, baru set nilai RT
                 if (oldRtValue) rtSelect.value = oldRtValue;
-            }, 600);
+            }, 500); // 500ms delay
         }
     });
 </script>
@@ -63,96 +64,21 @@
 @section('content')
 
 <style>
-    .form-card {
-        background-color: var(--color-bg-card);
-        padding: 2.5rem;
-        border-radius: 12px;
-        max-width: 800px;
-        margin: 2rem auto;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    }
-    .form-card h2 {
-        color: var(--color-primary-light);
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 2rem;
-        font-size: 2rem;
-    }
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-    .form-control, .form-select {
-        width: 100%;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #334e6f;
-        background-color: #0b1a2e;
-        color: #f0f4f8;
-        box-sizing: border-box;
-        font-size: 1rem;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: var(--color-primary-light);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(75, 192, 192, 0.3);
-    }
-    .form-select:disabled {
-        background-color: #1c2b3a;
-        cursor: not-allowed;
-    }
-    .btn-submit {
-        background-color: var(--color-primary-light);
-        color: var(--color-primary-dark);
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        width: 100%;
-    }
-    .btn-submit:hover { background-color: #3aa6a6; }
-    .alert {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        border-radius: 8px;
-        color: white;
-    }
+    /* Style Anda sudah bagus, tidak perlu diubah */
+    .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 800px; margin: 2rem auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+    .form-card h2 { color: var(--color-primary-light); text-align: center; margin-top: 0; margin-bottom: 2rem; font-size: 2rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    .form-control, .form-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334e6f; background-color: #0b1a2e; color: #f0f4f8; box-sizing: border-box; font-size: 1rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--color-primary-light); outline: none; box-shadow: 0 0 0 3px rgba(122, 186, 120, 0.3); }
+    .form-select:disabled { background-color: #1c2b3a; cursor: not-allowed; }
+    .btn-submit { background-color: var(--color-primary-light); color: var(--color-primary-dark); padding: 12px 25px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background-color 0.3s; width: 100%; }
+    .btn-submit:hover { background-color: #96c997; }
+    .alert { padding: 1rem; margin-bottom: 1.5rem; border-radius: 8px; color: white; }
     .alert-success { background-color: #28a745; }
     .alert-danger { background-color: #dc3545; }
-    .alert-error {
-        color: #ffdddd;
-        background-color: #dc3545;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin-top: 5px;
-        font-size: 0.85rem;
-    }
-    /* === BARU: Blok untuk pesan validasi === */
-    .validation-summary {
-        padding: 1rem;
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-    }
-    .validation-summary ul {
-        margin-top: 0.5rem;
-        margin-bottom: 0;
-        padding-left: 1.2rem;
-    }
-    .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
+    .alert-error { color: #ffdddd; background-color: #dc3545; padding: 8px 12px; border-radius: 4px; margin-top: 5px; font-size: 0.85rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 </style>
 
 <div class="form-card">
@@ -190,7 +116,6 @@
                     title="NIK harus terdiri dari 16 digit angka.">
                 @error('nik') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
-
             <div class="form-group">
                 <label for="nomor_kk">Nomor KK (16 Digit)</label>
                 <input type="text" name="nomor_kk" id="nomor_kk" class="form-control"
@@ -207,7 +132,6 @@
                     value="{{ old('tanggal_lahir') }}" required>
                 @error('tanggal_lahir') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
-
             <div class="form-group">
                 <label for="jenis_kelamin">Jenis Kelamin</label>
                 <select name="jenis_kelamin" id="jenis_kelamin" class="form-select" required>
@@ -221,23 +145,20 @@
 
         <div class="grid-2">
             <div class="form-group">
-                {{-- === PERBAIKAN: Gunakan 'rw_id' === --}}
                 <label for="rw_id">RW</label>
-                <select name="rw_id" id="rw" class="form-select" required>
+                <select name="rw_id" id="rw_id" class="form-select" required>
                     <option value="">-- Pilih RW --</option>
                     @foreach($rws as $rw)
                         <option value="{{ $rw->id }}" {{ old('rw_id') == $rw->id ? 'selected' : '' }}>
-                            {{ $rw->nomor_rw }}
+                            RW {{ $rw->nomor_rw }}
                         </option>
                     @endforeach
                 </select>
                 @error('rw_id') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
-
             <div class="form-group">
-                 {{-- === PERBAIKAN: Gunakan 'rt_id' === --}}
                 <label for="rt_id">RT</label>
-                <select name="rt_id" id="rt" class="form-select" required disabled>
+                <select name="rt_id" id="rt_id" class="form-select" required disabled>
                     <option value="">-- Pilih RW Terlebih Dahulu --</option>
                 </select>
                 @error('rt_id') <div class="alert-error">{{ $message }}</div> @enderror
@@ -246,15 +167,13 @@
 
         <div class="form-group">
             <label for="pekerjaan">Pekerjaan</label>
-            <input type="text" name="pekerjaan" id="pekerjaan" class="form-control"
-                value="{{ old('pekerjaan') }}">
+            <input type="text" name="pekerjaan" id="pekerjaan" class="form-control" value="{{ old('pekerjaan') }}">
             @error('pekerjaan') <div class="alert-error">{{ $message }}</div> @enderror
         </div>
 
         <div class="form-group">
             <label for="pendidikan_terakhir">Pendidikan Terakhir</label>
-            <input type="text" name="pendidikan_terakhir" id="pendidikan_terakhir" class="form-control"
-                value="{{ old('pendidikan_terakhir') }}">
+            <input type="text" name="pendidikan_terakhir" id="pendidikan_terakhir" class="form-control" value="{{ old('pendidikan_terakhir') }}">
             @error('pendidikan_terakhir') <div class="alert-error">{{ $message }}</div> @enderror
         </div>
 

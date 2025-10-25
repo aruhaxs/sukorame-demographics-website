@@ -4,6 +4,19 @@
 
 @section('content')
 
+<style>
+    .chart-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .data-card.chart-card {
+        padding: 1.5rem;
+    }
+</style>
+
 <header class="hero-section">
     <div class="overlay"></div>
     <div class="header-content">
@@ -18,68 +31,31 @@
         <button class="carousel-nav prev">←</button>
 
         <div class="data-cards-container">
-            {{-- Kartu 1: Total Penduduk --}}
             <div class="data-card large">
                 <div class="card-content">
                     <p class="data-label">Jumlah Penduduk</p>
-                    <p class="data-value">{{ $totalPenduduk ?? '0' }}</p>
+                    <p class="data-value">{{ $totalPenduduk }}</p>
                 </div>
                 <div class="card-image-placeholder"></div>
             </div>
 
-            {{-- Kartu 2: Laki-laki & Perempuan --}}
             <div class="data-card small chart-card">
-                <div class="chart-label">
-                    <p>Laki-laki: {{ $jumlahLakiLaki ?? '0' }}</p>
-                    <p>Perempuan: {{ $jumlahPerempuan ?? '0' }}</p>
-                </div>
-                <div class="bar-chart">
-                    @php
-                        $totalGender = ($jumlahLakiLaki ?? 0) + ($jumlahPerempuan ?? 0);
-                        $lakiPercent = $totalGender > 0 ? ($jumlahLakiLaki / $totalGender) * 100 : 0;
-                        $perempuanPercent = $totalGender > 0 ? ($jumlahPerempuan / $totalGender) * 100 : 0;
-                    @endphp
-                    <div class="bar-fill laki" style="width: {{ $lakiPercent }}%;"></div>
-                    <div class="bar-fill perempuan" style="width: {{ $perempuanPercent }}%;"></div>
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
                 </div>
             </div>
 
-            {{-- Kartu 3: Jumlah Rumah Tangga (Statis) --}}
             <div class="data-card large">
                 <div class="card-content">
-                    <p class="data-label">Jumlah Rumah Tangga</p>
-                    <p class="data-value">75</p>
+                    <p class="data-label">Total Kartu Keluarga (KK)</p>
+                    <p class="data-value">{{ $totalKK }}</p>
                 </div>
                 <div class="card-image-placeholder"></div>
             </div>
-
+            
             <div class="data-card small chart-card">
-                <div class="chart-label">
-                    {{-- DIBENAHI: Tampilkan persentase per kategori --}}
-                    <p>Bayi: {{ $usiaData['counts']['Bayi'] ?? '0' }} ({{ round($usiaData['percentages']['Bayi'] ?? 0) }}%)</p>
-                    <p>Anak-anak: {{ $usiaData['counts']['Anak-anak'] ?? '0' }} ({{ round($usiaData['percentages']['Anak-anak'] ?? 0) }}%)</p>
-                    <p>Remaja: {{ $usiaData['counts']['Remaja'] ?? '0' }} ({{ round($usiaData['percentages']['Remaja'] ?? 0) }}%)</p>
-                    <p>Dewasa: {{ $usiaData['counts']['Dewasa'] ?? '0' }} ({{ round($usiaData['percentages']['Dewasa'] ?? 0) }}%)</p>
-                    <p>Lansia: {{ $usiaData['counts']['Lansia'] ?? '0' }} ({{ round($usiaData['percentages']['Lansia'] ?? 0) }}%)</p>
-                </div>
-
-                <div class="bar-chart-multi">
-                    {{-- Total Usia Muda dan Usia Dewasa dihitung dari Controller, TAPI KITA BUTUH PERSENTASE DI PHP --}}
-                    @php
-                        // Hitungan persentase total dua kelompok besar sudah di Controller.
-                        // Ambil dari array percentages:
-                        $mudaPercent = $usiaData['percentages']['Usia Muda'] ?? 0;
-                        $dewasaPercent = $usiaData['percentages']['Usia Dewasa'] ?? 0;
-                    @endphp
-
-                    {{-- Menampilkan 5 bar fill di dalam satu bar chart multi --}}
-                    {{-- Kita akan menggunakan persentase masing-masing kategori usia di sini --}}
-
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Bayi'] ?? 0 }}%; background-color: #f7a731;" title="Bayi"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Anak-anak'] ?? 0 }}%; background-color: #8c81ff;" title="Anak-anak"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Remaja'] ?? 0 }}%; background-color: #4b6cb7;" title="Remaja"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Dewasa'] ?? 0 }}%; background-color: #55A08F;" title="Dewasa"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Lansia'] ?? 0 }}%; background-color: #dc3545;" title="Lansia"></div>
+                 <div class="chart-container">
+                    <canvas id="ageChart"></canvas>
                 </div>
             </div>
         </div>
@@ -93,9 +69,9 @@
     <div class="info-card-container">
         <div class="info-card">
             <div class="info-text">
-                <h3 class="info-title">Jumlah Penduduk</h3>
+                <h3 class="info-title">Program Pemberdayaan Masyarakat</h3>
                 <p class="info-description">
-                    Lagi-lagi aku bingung mau nulis apa. Coba gini dulu sementara ya.
+                    Kelurahan Sukorame aktif mengadakan berbagai program untuk meningkatkan keterampilan dan kesejahteraan warga.
                 </p>
                 <a href="#" class="info-button">Selengkapnya</a>
             </div>
@@ -118,7 +94,7 @@
         <div class="profile-text">
             <h2 class="profile-name">Vita Sari, SE. MM.</h2>
             <p class="profile-description">
-                Vita Sari, S.E., M.M., memegang jabatan sebagai Lurah Kelurahan Sukorame, yang menempatkannya sebagai pimpinan eksekutif tertinggi yang bertanggung jawab atas seluruh aspek pemerintahan, pembangunan, dan kemasyarakatan di wilayahnya. Perannya bukan sekadar administratif, melainkan sebagai seorang manajer publik strategis yang mengoordinasikan dan mengawasi kinerja tiga seksi utama yang mencakup bidang pelayanan umum, pembangunan ekonomi dan pemberdayaan masyarakat, serta penjaminan ketentraman dan ketertiban sosial.
+                Vita Sari, S.E., M.M., memegang jabatan sebagai Lurah Kelurahan Sukorame, yang menempatkannya sebagai pimpinan eksekutif tertinggi yang bertanggung jawab atas seluruh aspek pemerintahan, pembangunan, dan kemasyarakatan di wilayahnya.
             </p>
         </div>
     </div>
@@ -127,8 +103,100 @@
 <section class="location-section">
     <h2 class="section-title">LOKASI</h2>
     <div class="map-container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.535359781846!2d111.993131!3d-7.733535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7856d35272a5a5%3A0x600b33b9134a66a!2sKelurahan%20Sukorame!5e0!3m2!1sen!2sid!4v1699999999999!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15810.19831623955!2d112.00898863955077!3d-7.836906900000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e78570957c5a4ad%3A0x2358055361304132!2sSukorame%2C%20Kec.%20Mojoroto%2C%20Kota%20Kediri%2C%20Jawa%20Timur!5e0!3m2!1sid!2sid!4v1734327774213!5m2!1sid!2sid" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 </section>
 
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const jumlahLakiLaki = {{ $jumlahLakiLaki }};
+        const jumlahPerempuan = {{ $jumlahPerempuan }};
+        const usiaData = @json($usiaData);
+
+        const ctxGender = document.getElementById('genderChart');
+        if (ctxGender) {
+            new Chart(ctxGender, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Laki-laki', 'Perempuan'],
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: [jumlahLakiLaki, jumlahPerempuan],
+                        backgroundColor: ['#4b6cb7', '#f7a731'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#333',
+                                font: { size: 14 }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Komposisi Jenis Kelamin',
+                            color: '#1E5631',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+
+        const ctxAge = document.getElementById('ageChart');
+        if (ctxAge) {
+            new Chart(ctxAge, {
+                type: 'bar',
+                data: {
+                    labels: usiaData.labels,
+                    datasets: [{
+                        label: 'Jumlah Penduduk',
+                        data: usiaData.data,
+                        backgroundColor: [
+                            '#f7a731', // Oranye
+                            '#8c81ff', // Ungu
+                            '#4b6cb7', // Biru
+                            '#55A08F', // Hijau Tosca
+                            '#dc3545'  // Merah
+                        ],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    scales: {
+                        x: {
+                            ticks: { color: '#555' },
+                            grid: { display: true, color: '#eee' }
+                        },
+                        y: {
+                            ticks: { color: '#333' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Komposisi Kelompok Usia',
+                            color: '#1E5631',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush

@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Komoditas;
 use App\Models\Penduduk;
-use App\Models\Perangkat;
+use App\Models\Rt;
+use App\Models\Rw;
 use App\Models\Bangunan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -19,7 +20,7 @@ class DashboardController extends Controller
     {
         $data = [
             'total_penduduk' => Penduduk::count(),
-            'total_perangkat' => Perangkat::count(), // Anda bisa hapus jika tabel ini sudah tidak relevan
+            'total_rt_rw'     => Rt::count() + Rw::count(),
             'total_komoditas' => Komoditas::count(),
             'total_bangunan' => Bangunan::count(),
         ];
