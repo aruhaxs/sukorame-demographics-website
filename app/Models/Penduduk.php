@@ -14,23 +14,35 @@ class Penduduk extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'nama_lengkap',
-        'nomor_kk',
         'nik',
+        'nomor_kk',
+        'nama_lengkap',
+        'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',
-        'rt_id',
-        'rw_id',
-        'pekerjaan',
-        'pendidikan_terakhir',
         'agama',
+        'pendidikan_terakhir',
+        'pekerjaan',
+        'status_perkawinan',
+        'kewarganegaraan',
+        'no_hp',
+        'email',
+        'rw_id',
+        'rt_id',
+        'jalan',
+        'kelurahan',
+        'kecamatan',
+        'kabupaten',
+        'provinsi',
+        'kodepos',
+        'foto_ktp_url',
+        'foto_kk_url',
     ];
 
     /**

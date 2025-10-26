@@ -1,5 +1,179 @@
-@import 'tailwindcss';
+/* Import Tailwind jika Anda menggunakannya */
+@import 'tailwindcss'; 
+/* Import Toastr jika diinstal via npm */
+@import 'toastr/build/toastr.min.css'; 
 
+/* --- Reset & Gaya Dasar --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #F8F9FA;
+    color: #343A40;
+    line-height: 1.6; 
+}
+
+/* --- Lapisan Overlay (Untuk Mobile) --- */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    transition: opacity 0.3s ease;
+}
+.overlay.active { display: block; }
+
+/* --- Navbar Atas (Desktop & Mobile) --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 0.8rem 2rem;
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); <<< DIHAPUS */
+    border-bottom: 1px solid #e9ecef; /* Alternatif: Garis tipis sebagai pemisah */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.navbar-logo img {
+    height: 40px;
+    display: block;
+    margin-right: 1.5rem; 
+}
+
+/* --- Menu Horizontal (Hanya untuk Desktop) --- */
+.top-menu-links {
+    display: flex; /* Default: tampil di desktop */
+    list-style: none;
+    gap: 1.5rem;
+    align-items: center; 
+}
+.top-menu-links li {
+    padding: 0 0.5rem; 
+}
+.top-menu-links a {
+    text-decoration: none;
+    color: #343A40;
+    font-weight: 500;
+    padding-bottom: 5px;
+    transition: color 0.2s; 
+    white-space: nowrap; 
+    display: block; 
+}
+.top-menu-links a:hover,
+.top-menu-links a.active {
+    color: #1E5631;
+}
+.top-menu-links .logout-button {
+    background: none; border: none; font-family: inherit;
+    font-size: inherit; color: #dc3545; cursor: pointer;
+    font-weight: 500;
+    padding: 0; 
+    padding-bottom: 5px;
+    transition: color 0.2s; 
+    height: auto; 
+    line-height: inherit; 
+}
+.top-menu-links .logout-button:hover {
+    color: #cf3041; 
+}
+
+/* --- Tombol Hamburger --- */
+.navbar-toggler {
+    display: none; /* Default: Sembunyikan di desktop */
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    cursor: pointer;
+    z-index: 101;
+    /* display: flex; <<< Dihapus dari sini agar defaultnya none */
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+.navbar-toggler .bar {
+    width: 100%;
+    height: 3px;
+    background-color: #1E5631;
+    border-radius: 2px;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.navbar-toggler.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar-toggler.open .bar:nth-child(2) { opacity: 0; }
+.navbar-toggler.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* --- Menu Samping dari Kanan --- */
+.side-menu {
+    height: 100%;
+    width: 280px;
+    position: fixed;
+    z-index: 102;
+    top: 0;
+    right: -280px;
+    background-color: #1E5631;
+    padding-top: 20px;
+    transition: right 0.3s ease;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between; 
+}
+
+.close-menu-btn {
+    position: absolute; top: 10px; right: 15px; background: none; border: none;
+    color: #b0c4de; font-size: 2.5rem; font-weight: 300; cursor: pointer;
+}
+.side-menu-links {
+    padding-top: 40px;
+    flex-grow: 1; 
+}
+.side-menu-links a {
+    padding: 15px 25px; text-decoration: none; font-size: 1rem;
+    color: #E9ECEF; display: block;
+    line-height: normal; 
+}
+.side-menu-links a:hover,
+.side-menu-links a.active {
+    background-color: rgba(76, 154, 42, 0.2);
+    color: #ffffff;
+}
+.side-menu .logout-link {
+    width: 100%; 
+    border-top: 1px solid #2a528a;
+    margin-top: auto; 
+}
+.side-menu .logout-button {
+    background: none; border: none; padding: 15px 25px; width: 100%;
+    text-align: left; cursor: pointer; font-size: 1rem;
+    font-family: inherit; color: #E9ECEF;
+    line-height: normal; 
+}
+.side-menu .logout-button:hover {
+    background-color: rgba(220, 53, 69, 0.2); 
+    color: #ffffff;
+}
+        
+/* Konten Utama */
+.main-content { padding: 2rem; }
+
+/* --- ATURAN RESPONSIVE --- */
+@media (max-width: 991.98px) {
+    .top-menu-links { display: none; } /* Sembunyikan menu atas di mobile */
+    .navbar-toggler { display: flex; } /* Tampilkan hamburger di mobile (gunakan flex agar bar terlihat) */ 
+    .main-content { padding: 1rem; }
+    .navbar { padding: 0.8rem 1rem; }
+    .navbar-logo img { margin-right: 0.5rem; } 
+}
+
+/* Bagian @source dan @theme tidak diubah, diasumsikan diperlukan oleh setup Anda */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -9,3 +183,4 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
