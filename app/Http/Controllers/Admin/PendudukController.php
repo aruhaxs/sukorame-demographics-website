@@ -34,7 +34,6 @@ class PendudukController extends Controller
     public function create(): View
     {
         $rws = Rw::orderBy('nomor_rw')->get();
-        // Menambahkan kodepos ke default values
         $defaultValues = [
             'kelurahan' => 'Sukorame',
             'kecamatan' => 'Mojoroto',
@@ -189,22 +188,15 @@ class PendudukController extends Controller
             return back()->withInput()->with('error', 'Format Tanggal Lahir tidak valid.');
         }
 
-        // Ambil NIK dan Nomor KK saat ini untuk penentuan path
-        $nik = $penduduk->nik; // NIK tidak berubah
+        $nik = $penduduk->nik;
         $nomorKKBaru = $validatedData['nomor_kk'];
         $basePathBaru = $this->getStoragePath($nik, $nomorKKBaru);
-        
-        // Ambil path lama (berdasarkan data lama)
         $nomorKKlama = $penduduk->nomor_kk;
         $basePathLama = $this->getStoragePath($nik, $nomorKKlama);
 
         try {
             $rt = Rt::find($validatedData['rt_id']);
             $rw = Rw::find($validatedData['rw_id']);
-            
-            // --- 1. PROSES UPLOAD FILE BARU & HAPUS FILE LAMA ---
-
-            // KTP
             if ($request->hasFile('foto_ktp_url')) {
                 // Hapus file lama jika ada
                 if ($penduduk->foto_ktp_url && Storage::disk('public')->exists($penduduk->foto_ktp_url)) {
