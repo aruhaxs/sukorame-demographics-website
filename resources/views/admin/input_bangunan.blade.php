@@ -4,7 +4,6 @@
 
 @section('content')
 
-{{-- Style ini konsisten dengan halaman edit dan halaman lainnya --}}
 <style>
     .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 800px; margin: 2rem auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
     .form-card h2 { color: var(--color-primary-light); text-align: center; margin-top: 0; margin-bottom: 2rem; font-size: 2rem; }

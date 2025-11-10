@@ -8,8 +8,9 @@ use App\Models\Rw;
 use App\Models\Rt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // <-- Pastikan ini ada
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class BangunanController extends Controller
@@ -66,7 +67,11 @@ class BangunanController extends Controller
             $validatedData['foto'] = $path;
         }
 
-        Bangunan::create($validatedData);
+        $bangunan = Bangunan::create($validatedData);
+
+        // Sinkron ke Firebase Realtime Database
+        $this->syncToFirebase($bangunan);
+
         return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil ditambahkan!');
     }
 
@@ -107,6 +112,10 @@ class BangunanController extends Controller
         }
 
         $bangunan->update($validatedData);
+
+        // Sinkron ke Firebase Realtime Database
+        $this->syncToFirebase($bangunan);
+
         return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil diperbarui!');
     }
 
@@ -115,11 +124,77 @@ class BangunanController extends Controller
      */
     public function destroy(Bangunan $bangunan): RedirectResponse
     {
+        // Hapus dari Firebase terlebih dahulu (jika tersedia)
+        $this->deleteFromFirebase($bangunan->id);
+
         if ($bangunan->foto) {
             Storage::disk('public')->delete($bangunan->foto);
         }
 
         $bangunan->delete();
         return redirect()->route('admin.bangunan.index')->with('success', 'Data Bangunan berhasil dihapus!');
+    }
+
+    /**
+     * Helper: bentuk URL Firebase dari env dan path.
+     */
+    private function getFirebaseUrl(string $path = ''): ?string
+    {
+        $base = env('FIREBASE_DATABASE_URL');
+        if (empty($base)) {
+            return null;
+        }
+        $base = rtrim($base, '/');
+        $secret = env('FIREBASE_DB_SECRET');
+        $path = ltrim($path, '/');
+        $url = "{$base}/{$path}.json";
+        if (!empty($secret)) {
+            // trim quotes jika ada di .env
+            $secret = trim($secret, "\"'");
+            $url .= '?auth=' . $secret;
+        }
+        return $url;
+    }
+
+    /**
+     * Sinkron data bangunan ke Firebase Realtime Database (menggunakan id MySQL sebagai key).
+     */
+    private function syncToFirebase(Bangunan $bangunan): void
+    {
+        $url = $this->getFirebaseUrl("bangunans/{$bangunan->id}");
+        if (!$url) {
+            return;
+        }
+
+        // Siapkan data; tambahkan foto_url jika foto ada
+        $data = $bangunan->toArray();
+
+        /** @var \Illuminate\Contracts\Filesystem\Filesystem $disk */
+        $disk = Storage::disk('public');
+        $data['foto_url'] = $bangunan->foto ? Storage::url($bangunan->foto) : null;
+
+        try {
+            Http::timeout(10)->put($url, $data);
+        } catch (\Throwable $e) {
+            // Jangan lempar exception ke user; log jika perlu
+            // \Log::error('Firebase sync error: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus node bangunan di Firebase.
+     */
+    private function deleteFromFirebase(int $id): void
+    {
+        $url = $this->getFirebaseUrl("bangunans/{$id}");
+        if (!$url) {
+            return;
+        }
+
+        try {
+            Http::timeout(10)->delete($url);
+        } catch (\Throwable $e) {
+            // \Log::error('Firebase delete error: '.$e->getMessage());
+        }
     }
 }

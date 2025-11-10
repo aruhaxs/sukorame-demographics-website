@@ -4,7 +4,6 @@
 
 @section('content')
 <style>
-    /* Menggunakan style form yang konsisten */
     .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 700px; margin: 2rem auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
     .form-card h2 { color: var(--color-primary-light); text-align: center; margin-bottom: 2rem; font-size: 2rem; }
     .form-group { margin-bottom: 1.5rem; }
@@ -16,7 +15,6 @@
 
 <div class="form-card">
     <h2>Edit Data {{ strtoupper($type) }}</h2>
-
     <form action="{{ route('admin.rt-rw.update', ['type' => $type, 'id' => $item->id]) }}" method="POST">
         @csrf
         @method('PUT')

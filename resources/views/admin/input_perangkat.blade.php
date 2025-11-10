@@ -4,7 +4,6 @@
 
 @section('content')
 <style>
-    /* Menggunakan style form yang konsisten */
     .form-card { background-color: var(--color-bg-card); padding: 2.5rem; border-radius: 12px; max-width: 700px; margin: 2rem auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
     .form-card h2 { color: var(--color-primary-light); text-align: center; margin-bottom: 2rem; font-size: 2rem; }
     .form-group { margin-bottom: 1.5rem; }
@@ -27,7 +26,6 @@
             </select>
         </div>
 
-        {{-- Form untuk RW (muncul jika 'rw' dipilih) --}}
         <div id="rw-form" style="display: none;">
             <div class="form-group">
                 <label for="nomor_rw">Nomor RW</label>
@@ -41,7 +39,6 @@
             </div>
         </div>
 
-        {{-- Form untuk RT (muncul jika 'rt' dipilih) --}}
         <div id="rt-form" style="display: none;">
             <div class="form-group">
                 <label for="rw_id">Pilih RW Induk</label>
@@ -56,12 +53,12 @@
             <div class="form-group">
                 <label for="nomor_rt">Nomor RT</label>
                 <input type="number" name="nomor_rt" class="form-control" placeholder="Contoh: 1">
-                 @error('nomor_rt') <div class="alert-error">{{ $message }}</div> @enderror
+                @error('nomor_rt') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
                 <label for="ketua_rt">Nama Ketua RT</label>
                 <input type="text" name="ketua_rt" class="form-control" placeholder="Masukkan nama lengkap">
-                 @error('ketua_rt') <div class="alert-error">{{ $message }}</div> @enderror
+                @error('ketua_rt') <div class="alert-error">{{ $message }}</div> @enderror
             </div>
         </div>
 
@@ -75,7 +72,6 @@
     document.getElementById('type').addEventListener('change', function () {
         const rwForm = document.getElementById('rw-form');
         const rtForm = document.getElementById('rt-form');
-
         if (this.value === 'rw') {
             rwForm.style.display = 'block';
             rtForm.style.display = 'none';
