@@ -66,12 +66,12 @@
         }
         .top-menu-links a:hover,
         .top-menu-links a.active {
-            color: #1E5631;
-            border-bottom-color: #4C9A2A;
+            color: #ffffffff;
+            border-bottom-color: #ffffffff;
         }
         .top-menu-links .logout-button {
             background: none; border: none; font-family: inherit;
-            font-size: inherit; color: #dc3545; cursor: pointer;
+            font-size: inherit; color: #ffffffff; cursor: pointer;
             font-weight: 500;
         }
 
@@ -148,6 +148,34 @@
             .main-content { padding: 1rem; }
             .navbar { padding: 0.8rem 1rem; }
         }
+
+/* --- Tombol Logout di Navbar --- */
+.top-menu-links .logout-item {
+    display: flex;
+    align-items: center;
+}
+
+.top-menu-links .logout-form {
+    margin: 0;
+}
+
+.top-menu-links .logout-button {
+    background-color: #c72a2aff; /* hijau tua */
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.top-menu-links .logout-button:hover {
+    background-color: #6b1a1aff;
+    color: #ffe9e9ff;
+    transition: 1s;
+}
+
     </style>
     @stack('styles')
 </head>
@@ -184,12 +212,13 @@
             <li><a href="{{ route('admin.penduduk.index') }}" class="{{ request()->routeIs('admin.penduduk.*') ? 'active' : '' }}">PENDUDUK</a></li>
             <li><a href="{{ route('admin.komoditas.index') }}" class="{{ request()->routeIs('admin.komoditas.*') ? 'active' : '' }}">KOMODITAS</a></li>
             <li><a href="{{ route('admin.bangunan.index') }}" class="{{ request()->routeIs('admin.bangunan.*') ? 'active' : '' }}">BANGUNAN</a></li>
-            <li>
-                <form action="{{ route('login') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="logout-button">LOGOUT</button>
-                </form>
-            </li>
+            <li class="logout-item">
+    <form action="{{ route('login') }}" method="POST" class="logout-form">
+        @csrf
+        <button type="submit" class="logout-button">LOGOUT</button>
+    </form>
+</li>
+
         </ul>
 
         <button class="navbar-toggler" id="navbar-toggler" aria-label="Toggle navigation">

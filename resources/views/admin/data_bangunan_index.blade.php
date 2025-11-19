@@ -75,6 +75,95 @@
     .page-item.active .page-link { background-color: var(--color-primary); color: #fff; border-color: var(--color-primary); }
     .page-item:not(.disabled) .page-link:hover { background-color: var(--color-primary-light); color: var(--color-bg-dark); border-color: var(--color-primary-light); }
     .page-item.disabled .page-link { color: #6b7280; background-color: var(--color-bg-card); border-color: var(--color-border); cursor: not-allowed; }
+
+    /* == SEARCH BOX STYLING == */
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: #2d3748;
+        border-radius: 8px;
+        padding: 6px 12px;
+        border: 1px solid var(--color-border);
+    }
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--color-text-light);
+        width: 180px;
+        font-size: 0.9rem;
+    }
+    .search-box input::placeholder {
+        color: var(--color-text-subtle);
+    }
+    .search-box i {
+        color: var(--color-primary-light);
+        font-size: 1.1rem;
+        margin-left: 8px;
+    }
+
+    .admin-title{
+        color : black;
+    }
+
+        /* == FILTER BUTTON STYLING == */
+    .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-btn {
+        background-color: #2d3748;
+        color: var(--color-text-light);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        background-color: var(--color-primary-light);
+        color: var(--color-bg-dark);
+    }
+
+    .filter-btn.active {
+        background-color: var(--color-primary);
+        color: #fff;
+        border-color: var(--color-primary);
+    }
+    /* == FILTER DROPDOWN STYLING == */
+    .table-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .filter-dropdown {
+        background-color: #2d3748;
+        color: var(--color-text-light);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-dropdown:hover {
+        background-color: var(--color-primary-light);
+        color: var(--color-bg-dark);
+    }
+
+    .filter-dropdown:focus {
+        outline: none;
+        border-color: var(--color-primary);
+    }
+
 </style>
 @endpush
 
@@ -105,8 +194,24 @@
 {{-- Tabel Data Bangunan --}}
 <section class="data-table-section">
     <div class="data-table-header">
-        <h2>Daftar Bangunan</h2>
+    <h2>Daftar Bangunan</h2>
+    <div class="table-controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Cari bangunan..." />
+            <i class="bi bi-search"></i>
+        </div>
+
+        <select id="filterKategori" class="filter-dropdown">
+            <option value="all">Semua Kategori</option>
+            <option value="Pendidikan">Pendidikan</option>
+            <option value="Kesehatan">Kesehatan</option>
+            <option value="Tempat Ibadah">Tempat Ibadah</option>
+            <option value="UMKM">UMKM</option>
+            <option value="Lainnya">Lainnya</option>
+        </select>
     </div>
+</div>
+
     <div class="data-table-wrapper">
         <table>
             <thead>
@@ -150,6 +255,8 @@
 </section>
 @endsection
 
+
+
 {{--
 ======================================================================
 SCRIPT PETA YANG DIPERBARUI
@@ -158,76 +265,100 @@ SCRIPT PETA YANG DIPERBARUI
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""></script>
+    crossorigin="">
+</script>
+
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-        // --- 1. Inisialisasi Peta ---
-        const mapCenter = [-7.8180, 112.0185]; // Sesuaikan titik tengah peta Anda
-        const map = L.map('map').setView(mapCenter, 16); // Sesuaikan zoom awal
+    // --- 1. Inisialisasi Peta ---
+    const mapCenter = [-7.8180, 112.0185];
+    const map = L.map('map').setView(mapCenter, 16);
 
-        // --- 2. Tambahkan Tile Layer (Peta Dasar) ---
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
+    // --- 2. Tambahkan Tile Layer ---
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
+    // --- 3. Tambahkan Geocoder (Search di Peta) ---
+    L.Control.geocoder({
+        defaultMarkGeocode: false
+    }).on('markgeocode', function(e) {
+        map.fitBounds(e.geocode.bbox);
+    }).addTo(map);
 
-        // --- 3. Memuat Batas Wilayah (GeoJSON Statis) ---
+    // --- 4. Batas Wilayah ---
+    const styleBatas = {
+        color: "#e53e3e",
+        weight: 3,
+        opacity: 0.8,
+        fillColor: "#e53e3e",
+        fillOpacity: 0.2
+    };
 
-        // ====================== PERUBAHAN DI SINI ======================
-        const styleBatas = {
-            "color": "#e53e3e",     // WARNA MERAH (dari --color-danger)
-            "weight": 3,            // Ketebalan garis
-            "opacity": 0.8,         // Opasitas garis
-            "fillColor": "#e53e3e",  // Warna isian (merah)
-            "fillOpacity": 0.2      // Opasitas isian (sedikit lebih tebal)
-        };
-        // ===============================================================
+    fetch("{{ asset('geojson/sukorame_boundary.geojson') }}")
+        .then(res => res.json())
+        .then(data => {
+            L.geoJSON(data, { style: styleBatas }).addTo(map);
+            map.fitBounds(L.geoJSON(data).getBounds().pad(0.1));
+        });
 
-        // Ganti 'sukorame_boundary.geojson' dengan nama file Anda di public/geojson/
-        fetch("{{ asset('geojson/sukorame_boundary.geojson') }}")
-            .then(response => {
-                if (!response.ok) throw new Error('File batas wilayah tidak ditemukan.');
-                return response.json();
-            })
-            .then(data => {
-                L.geoJSON(data, { style: styleBatas }).addTo(map);
+    // --- 5. Titik Bangunan ---
+    fetch('{{ route('api.bangunan.map') }}')
+        .then(res => res.json())
+        .then(geoJsonData => {
+            L.geoJSON(geoJsonData, {
+                onEachFeature: (feature, layer) => {
+                    const props = feature.properties;
+                    const popupContent = `
+                        <div class="popup-title">${props.nama}</div>
+                        <div class="popup-category">${props.kategori}</div>
+                        <p>${props.deskripsi || 'Tidak ada deskripsi.'}</p>
+                        <img src="${props.foto_url}" alt="Foto ${props.nama}">
+                    `;
+                    layer.bindPopup(popupContent);
+                }
+            }).addTo(map);
+        });
+});
 
-                // (Opsional) Zoom peta agar pas dengan batas wilayah
-                map.fitBounds(L.geoJSON(data).getBounds().pad(0.1));
-            })
-            .catch(error => console.error('Error loading boundary GeoJSON:', error));
+// --- 6. FITUR PENCARIAN UNTUK TABEL ---
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('tbody tr');
 
-        // --- 4. Memuat Titik Bangunan (GeoJSON Dinamis dari API) ---
-        // Ini memanggil API /api/bangunan-map yang kita buat
-        fetch('{{ route('api.bangunan.map') }}')
-            .then(response => {
-                if (!response.ok) throw new Error('Gagal mengambil data bangunan.');
-                return response.json();
-            })
-            .then(geoJsonData => {
-                L.geoJSON(geoJsonData, {
-                    onEachFeature: function (feature, layer) {
-                        const props = feature.properties;
-
-                        // Buat konten popup menggunakan kelas CSS Anda
-                        const popupContent = `
-                            <div class="popup-title">${props.nama}</div>
-                            <div class="popup-category">${props.kategori}</div>
-                            <p>${props.deskripsi || 'Tidak ada deskripsi.'}</p>
-                            <img src="${props.foto_url}" alt="Foto ${props.nama}">
-                        `;
-                        layer.bindPopup(popupContent);
-                    }
-                }).addTo(map);
-            })
-            .catch(error => {
-                console.error('Error fetching map data:', error);
-                document.getElementById('map').innerHTML = '<p style="text-align:center; padding: 20px; color: var(--color-danger);">Gagal memuat data titik bangunan.</p>';
-            });
-
+    searchInput.addEventListener('keyup', function () {
+        const keyword = this.value.toLowerCase();
+        tableRows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(keyword) ? '' : 'none';
+        });
     });
+});
+
+// --- 7. FITUR FILTER DROPDOWN ---
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('filterKategori');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    dropdown.addEventListener('change', function () {
+        const selected = this.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const kategori = row.querySelector('.tag-kategori')?.textContent.toLowerCase() || '';
+            if (selected === 'all' || kategori === selected) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
 </script>
 @endpush
+</html>

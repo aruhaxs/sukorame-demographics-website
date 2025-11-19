@@ -13,12 +13,30 @@ class KomoditasController extends Controller
     /**
      * Menampilkan daftar komoditas.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $komoditas = Komoditas::orderBy('nama_komoditas')->get();
-        $totalKomoditas = $komoditas->count();
-        $totalKategori = $komoditas->pluck('kategori')->unique()->count();
-        return view('admin.data_komoditas_index', compact('komoditas', 'totalKomoditas', 'totalKategori'));
+        $search = $request->query('search');
+
+        $query = Komoditas::query();
+
+        if ($search) {
+            $query->where('nama_komoditas', 'like', '%' . $search . '%')
+                  ->orWhere('kategori', 'like', '%' . $search . '%')
+                  ->orWhere('produsen', 'like', '%' . $search . '%');
+        }
+
+        $komoditas = $query->orderBy('nama_komoditas')
+                           ->paginate(12)
+                           ->appends($request->query());
+
+        $totalKomoditas = Komoditas::count();
+        $totalKategori = Komoditas::distinct('kategori')->count('kategori');
+
+        return view('admin.data_komoditas_index', compact(
+            'komoditas',
+            'totalKomoditas',
+            'totalKategori'
+        ));
     }
 
     /**
@@ -26,7 +44,10 @@ class KomoditasController extends Controller
      */
     public function create(): View
     {
-        return view('admin.input_komoditas');
+        $totalKomoditas = Komoditas::count();
+        $totalKategori = Komoditas::distinct('kategori')->count('kategori');
+
+        return view('admin.input_komoditas', compact('totalKomoditas', 'totalKategori'));
     }
 
     /**
@@ -47,15 +68,25 @@ class KomoditasController extends Controller
     /**
      * Menampilkan form untuk mengedit data komoditas.
      */
-    public function edit(Komoditas $komoditas): View
+    // ===========================================
+    // PERBAIKAN 1: Ganti $komoditas -> $komodita
+    // ===========================================
+    public function edit(Komoditas $komodita): View
     {
-        return view('admin.edit_komoditas', compact('komoditas'));
+        $totalKomoditas = Komoditas::count();
+        $totalKategori = Komoditas::distinct('kategori')->count('kategori');
+
+        // Kirim variabel 'komodita' (tanpa 's') ke view
+        return view('admin.edit_komoditas', compact('komodita', 'totalKomoditas', 'totalKategori'));
     }
 
     /**
      * Memperbarui data komoditas.
      */
-    public function update(Request $request, Komoditas $komoditas): RedirectResponse
+    // ===========================================
+    // PERBAIKAN 2: Ganti $komoditas -> $komodita
+    // ===========================================
+    public function update(Request $request, Komoditas $komodita): RedirectResponse
     {
         $validatedData = $request->validate($this->validationRules());
 
@@ -63,16 +94,20 @@ class KomoditasController extends Controller
             $validatedData['harga'] = preg_replace('/[^0-9]/', '', $validatedData['harga']);
         }
 
-        $komoditas->update($validatedData);
+        // Gunakan $komodita (tanpa 's') untuk update
+        $komodita->update($validatedData);
         return redirect()->route('admin.komoditas.index')->with('success', 'Data Komoditas berhasil diperbarui!');
     }
 
     /**
      * Menghapus data komoditas.
      */
-    public function destroy(Komoditas $komoditas): RedirectResponse
+    // ===========================================
+    // PERBAIKAN 3: Ganti $komoditas -> $komodita
+    // ===========================================
+    public function destroy(Komoditas $komodita): RedirectResponse
     {
-        $komoditas->delete();
+        $komodita->delete();
         return redirect()->route('admin.komoditas.index')->with('success', 'Data komoditas berhasil dihapus!');
     }
 

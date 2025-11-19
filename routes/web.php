@@ -53,3 +53,10 @@ Route::prefix('admin')
 Route::get('/api/get-rt-by-rw/{rw_id}', [WilayahController::class, 'getRtByRw'])->name('api.getRtByRw');
 Route::get('/api/bangunan-map', [BangunanMapController::class, 'getGeoJson'])->name('api.bangunan.map');
 Route::get('/api/locations', [MapController::class, 'getLocationsApi'])->name('api.locations');
+
+Route::get('/geojson/sukorame', function () {
+    return response()->file(public_path('geojson/sukorame.geojson'));
+});
+Route::get('/geojson/bangunan', function () {
+    return response()->file(public_path('geojson/bangunan.geojson'));
+});

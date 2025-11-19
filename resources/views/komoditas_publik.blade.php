@@ -5,7 +5,6 @@
 
 @push('styles')
 <style>
-    /* Sesuaikan variabel warna dengan tema publik Anda */
     :root {
         --komoditas-bg-card: #ffffff;
         --komoditas-text-primary: #333333;
@@ -37,7 +36,6 @@
         font-size: 1.1rem;
     }
 
-    /* Filter & Search */
     .komoditas-filters {
         display: flex;
         flex-wrap: wrap;
@@ -51,7 +49,7 @@
     .komoditas-filters .form-group {
         flex: 1 1 250px;
     }
-    .komoditas-filters label { display: none; } /* Sembunyikan label, gunakan placeholder */
+    .komoditas-filters label { display: none; }
     .komoditas-filters .form-control,
     .komoditas-filters .form-select {
         width: 100%;
@@ -64,7 +62,6 @@
         font-size: 0.95rem;
     }
 
-    /* Kategori Section */
     .kategori-section {
         margin-bottom: 3rem;
     }
@@ -78,14 +75,12 @@
         display: inline-block;
     }
 
-    /* Card Grid */
     .komoditas-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.5rem;
     }
 
-    /* Card Item */
     .komoditas-card {
         background-color: var(--komoditas-bg-card);
         border-radius: 8px;
@@ -93,7 +88,7 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         padding: 1.5rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        display: flex; /* Untuk flexbox layout di dalam card */
+        display: flex;
         flex-direction: column;
     }
     .komoditas-card:hover {
@@ -103,7 +98,7 @@
     .komoditas-card .card-header {
         margin-bottom: 1rem;
     }
-    .komoditas-card h3 { /* Nama Komoditas */
+    .komoditas-card h3 {
         font-size: 1.2rem;
         font-weight: 600;
         color: var(--komoditas-text-primary);
@@ -122,18 +117,18 @@
         font-size: 0.9rem;
         color: var(--komoditas-text-subtle);
         line-height: 1.6;
-        flex-grow: 1; /* Agar detail mengisi ruang */
+        flex-grow: 1;
         margin-bottom: 1rem;
     }
     .komoditas-card .card-details p {
         margin: 0.5rem 0;
     }
     .komoditas-card .card-details strong {
-         color: var(--komoditas-text-primary);
-         margin-right: 5px;
+        color: var(--komoditas-text-primary);
+        margin-right: 5px;
     }
-    .komoditas-card .card-footer { /* Untuk Harga */
-        margin-top: auto; /* Dorong ke bawah */
+    .komoditas-card .card-footer {
+        margin-top: auto;
         padding-top: 1rem;
         border-top: 1px solid var(--komoditas-border-color);
     }
@@ -147,7 +142,6 @@
         color: var(--komoditas-text-subtle);
         padding: 2rem;
     }
-    /* Hide card if filtered out */
     .komoditas-card.hidden {
         display: none;
     }
@@ -162,14 +156,11 @@
         <p>Jelajahi berbagai produk dan potensi ekonomi dari Kelurahan Sukorame.</p>
     </header>
 
-    {{-- Filter & Search --}}
     <div class="komoditas-filters">
         <div class="form-group">
-            {{-- <label for="search-komoditas">Cari Komoditas</label> --}}
             <input type="text" id="search-komoditas" class="form-control" placeholder="🔍 Cari nama komoditas...">
         </div>
         <div class="form-group">
-            {{-- <label for="filter-kategori">Filter Kategori</label> --}}
             <select id="filter-kategori" class="form-select">
                 <option value="">Semua Kategori</option>
                 @foreach($kategoriList as $kategori)
@@ -179,7 +170,6 @@
         </div>
     </div>
 
-    {{-- Daftar Komoditas --}}
     @forelse($komoditasGrouped as $kategori => $items)
     <section class="kategori-section" data-kategori="{{ $kategori }}">
         <h2 class="kategori-title">{{ $kategori }}</h2>
@@ -200,14 +190,16 @@
                     @if($item->periode)
                         <p><strong>Periode:</strong> {{ $item->periode }}</p>
                     @endif
-                     @if($item->produksi)
+                    @if($item->produksi)
                         <p><strong>Produksi:</strong> {{ $item->produksi }}</p>
                     @endif
                 </div>
                 @if($item->harga)
                 <div class="card-footer">
-                    {{-- Format harga jika perlu --}}
-                    <span class="harga">Harga: Rp {{ number_format($item->harga, 0, ',', '.') }}</span>
+                    @php
+                        $harga = is_numeric($item->harga) ? (float)$item->harga : 0;
+                    @endphp
+                    <span class="harga">Harga: Rp {{ number_format($harga, 0, ',', '.') }}</span>
                 </div>
                 @endif
             </div>
@@ -252,23 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Sembunyikan/tampilkan judul kategori
-            if (sectionHasVisibleCard) {
-                section.style.display = 'block';
-                visibleSections++;
-            } else {
-                section.style.display = 'none';
-            }
+            section.style.display = sectionHasVisibleCard ? 'block' : 'none';
+            if(sectionHasVisibleCard) visibleSections++;
         });
-
-        // Tampilkan pesan jika tidak ada hasil
-        // (Anda bisa membuat elemen <p> khusus untuk ini jika mau)
-        // const noResultMessage = document.getElementById('no-result-message');
-        // if (visibleSections === 0) {
-        //     noResultMessage.style.display = 'block';
-        // } else {
-        //     noResultMessage.style.display = 'none';
-        // }
     }
 
     searchInput.addEventListener('input', filterKomoditas);

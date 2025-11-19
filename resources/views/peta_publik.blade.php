@@ -8,6 +8,12 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+/>
+
 <style>
     /*
      * PENTING: Anda mungkin perlu menyesuaikan warna dan gaya di bawah ini
@@ -29,10 +35,46 @@
         height: 70vh;
         width: 100%;
         border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Shadow lebih lembut */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         z-index: 1;
-        background-color: #f8f9fa; /* Warna latar belakang peta saat loading */
+        background-color: #f8f9fa;
+        margin-bottom: 1.5rem;
     }
+
+    /* Legenda warna di kanan bawah */
+    #legend {
+        position: absolute;
+        bottom: 20px;
+        right: 25px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        z-index: 1000;
+        color: #000 !important;   /* Pastikan teks hitam */
+    }
+    #legend strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--map-text-primary, #333);
+    }
+    #legend span {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        margin-right: 6px;
+    }
+
+    /* Supaya container-nya tidak mepet */
+    .container.py-4 {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+
 
     /* Kustomisasi popup (sesuaikan warna!) */
     .leaflet-popup-content-wrapper { background: var(--map-bg-card); color: var(--map-text-primary); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -115,10 +157,10 @@
     <div class="container py-4">
 
         {{-- Judul Halaman Publik (Sesuaikan style jika perlu) --}}
-        <h1 style="font-size: 1.8rem; font-weight: 600; color: var(--map-text-primary, #333); margin-bottom: 1rem;">
+        <h1 style="font-size: 1.8rem; font-weight: 600; color: var(#ffffffff); margin-bottom: 1rem;">
             Peta Sebaran Wilayah
         </h1>
-        <p style="color: var(--map-text-subtle, #666); margin-bottom: 2rem;">
+        <p style="color: var(#ffffffff); margin-bottom: 2rem;">
             Lihat lokasi fasilitas umum, UMKM, dan bangunan lainnya di wilayah kami.
         </p>
 
@@ -140,14 +182,16 @@
         <div id="map"></div>
 
         <div id="map-summary-container" style="margin-top: 2.5rem;">
-            <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--map-text-primary, #333); margin-bottom: 1.5rem; border-bottom: 1px solid var(--map-border-color, #dee2e6); padding-bottom: 1rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: var( #ffffffff); margin-bottom: 1.5rem; border-bottom: 1px solid var(--map-border-color, #dee2e6); padding-bottom: 1rem;">
                 Ringkasan Kategori
             </h2>
-            <div class="summary-stats-grid" id="map-summary">
+            <div class="summary-stats-grid" id="map-summary" style="margin-bottom: 2.5rem;">
                 {{-- Konten akan diisi oleh JavaScript --}}
                 <p style="color: var(--map-text-subtle);">Memuat data ringkasan...</p>
             </div>
         </div>
+        <div id="legend" style="margin-top: 15px;"></div>
+
     </div>
 
 @endsection
@@ -198,6 +242,28 @@ SCRIPT PETA (Tidak ada perubahan fungsional, hanya memastikan @push ada)
             })
             .catch(error => console.error('Error loading boundary GeoJSON:', error));
 
+            // Warna khusus berdasarkan kategori
+        const categoryColors = {
+            "Pendidikan": "blue",   // Biru
+            "Kesehatan": "",    // Merah
+            "Tempat Ibadah": "yellow",// Kuning
+            "UMKM": "green",         // Hijau
+            "Lainnya": "violet"       // Ungu
+        };
+
+            function getMarkerColor(kategori) {
+        switch (kategori) {
+            case "Pendidikan": return "blue";
+            case "Kesehatan": return "red";
+            case "Tempat Ibadah": return "yellow";
+            case "UMKM": return "green";
+            case "Lainnya": return "violet";
+            default: return "green";
+        }
+    }
+
+
+
 
         // --- 4. Memuat Titik Bangunan (GeoJSON Dinamis dari API) ---
         fetch('{{ route('api.bangunan.map') }}')
@@ -223,18 +289,85 @@ SCRIPT PETA (Tidak ada perubahan fungsional, hanya memastikan @push ada)
                 populateSummaryStats(categoryCounts);
                 populateCategoryFilter(uniqueCategories);
 
-                buildingsLayer = L.geoJSON(geoJsonData, {
-                    onEachFeature: function (feature, layer) {
-                        const props = feature.properties;
-                        const popupContent = `
-                            <div class="popup-title">${props.nama}</div>
-                            <div class="popup-category">${props.kategori}</div>
-                            <p>${props.deskripsi || 'Tidak ada deskripsi.'}</p>
-                            <img src="${props.foto_url}" alt="Foto ${props.nama}">
-                        `;
-                        layer.bindPopup(popupContent);
-                    }
-                }).addTo(map);
+                function createLegend() {
+                const legend = document.getElementById('legend');
+                legend.innerHTML = '<strong>Keterangan Warna:</strong><br>';
+                for (const [key, color] of Object.entries(categoryColors)) {
+                    legend.innerHTML += `
+                        <span style="display:inline-block;width:14px;height:14px;background:${color};border-radius:3px;margin-right:6px;"></span>${key}<br>
+                    `;
+                }
+}
+createLegend();
+
+
+buildingsLayer = L.geoJSON(geoJsonData, {
+    pointToLayer: function (feature, latlng) {
+    const kategori = feature.properties.kategori;
+
+    const categoryIcons = {
+        "Pendidikan": "college.svg",
+        "Kesehatan": "hospital-JP.svg",
+        "Tempat Ibadah": "religious-muslim.svg",
+        "UMKM": "fast-food.svg",
+        "Lainnya": "lainnya.svg"
+    };
+
+    const categoryColors = {
+        "Pendidikan": "#1d5e9eff",
+        "Kesehatan": "#069764ff",
+        "Tempat Ibadah": "#ffcb52ff",
+        "UMKM": "#901212ff",
+        "Lainnya": "#8b5cf6"
+    };
+
+    const iconFile = categoryIcons[kategori] || "lainnya.svg";
+    const bgColor = categoryColors[kategori] || "#0a6847";
+
+    const customIcon = L.divIcon({
+        className: "custom-marker",
+        html: `
+    <div style="
+        position:relative;
+        width:40px;
+        height:40px;
+        background:${bgColor};
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        border:2px solid white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        box-shadow:0 0 5px rgba(0,0,0,0.3);
+    ">
+        <img src="/icons/${iconFile}" 
+             style="width:20px;height:20px;filter:invert(1); transform:rotate(45deg);">
+    </div>
+`,
+
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    return L.marker(latlng, { icon: customIcon });
+},
+
+
+    onEachFeature: function (feature, layer) {
+        const props = feature.properties;
+        const popupContent = `
+            <div class="popup-title">${props.nama}</div>
+            <div class="popup-category" style="background-color:${categoryColors[props.kategori] || '#0a6847'}">
+                ${props.kategori}
+            </div>
+            <p>${props.deskripsi || 'Tidak ada deskripsi.'}</p>
+            <img src="${props.foto_url}" alt="Foto ${props.nama}">
+        `;
+        layer.bindPopup(popupContent);
+    }
+}).addTo(map);
+
 
                 // Aktifkan filter
                 document.getElementById('search-input').addEventListener('input', filterMap);
@@ -266,7 +399,38 @@ SCRIPT PETA (Tidak ada perubahan fungsional, hanya memastikan @push ada)
             buildingsLayer.addData({
                 type: 'FeatureCollection',
                 features: filteredFeatures
+            }).eachLayer(function (layer) {
+                const kategori = layer.feature.properties.kategori;
+                const color = categoryColors[kategori] || "#0a6847";
+                if (layer.setStyle) {
+                    layer.setStyle({ fillColor: color, color: "#fff" });
+                }
             });
+
+            const categoryStyles = {
+                "Pendidikan": {
+                    color: "#2861a7ff",
+                    icon: "bi bi-book"
+                },
+                "Kesehatan": {
+                    color: "#2bac40ff",
+                    icon: "bi bi-hospital"
+                },
+                "Tempat Ibadah": {
+                    color: "#b8b8b8ff",
+                    icon: "bi bi-moon-stars"
+                },
+                "UMKM": {
+                    color: "#17a2b8",
+                    icon: "bi bi-shop"
+                },
+                "Lainnya": {
+                    color: "#6c757d",
+                    icon: "bi bi-geo-alt"
+                }
+            };
+
+
         }
 
         // Fungsi untuk Ringkasan Kategori
@@ -306,6 +470,95 @@ SCRIPT PETA (Tidak ada perubahan fungsional, hanya memastikan @push ada)
             });
         }
 
+        // --- 5. Memuat Kawasan Perumahan (Polygon Hijau) ---
+        fetch("{{ asset('geojson/brigif.geojson') }}")
+        .then(res => {
+            if (!res.ok) throw new Error("GeoJSON Brigif tidak ditemukan.");
+            return res.json();
+        })
+        .then(brigifData => {
+
+            const brigifStyle = {
+                color: "#723a3aff",      // outline
+                weight: 2,
+                fillColor: "#6a2525ff", // warna isi
+                fillOpacity: 0.35
+            };
+
+            const brigifLayer = L.geoJSON(brigifData, {
+                style: brigifStyle,
+                onEachFeature: (feature, layer) => {
+                    const name = feature?.properties?.name || "Kawasan Brigif";
+                    layer.bindPopup(`<b>Kawasan Brigif</b><br>${name}`);
+                }
+            }).addTo(map);
+
+            // map.fitBounds(brigifLayer.getBounds());
+        })
+        .catch(err => console.error("Error loading Brigif area:", err));
+
+
+        // --- 6. Memuat Kawasan Sawah (Polygon Hijau Muda) ---
+        fetch("{{ asset('geojson/sawah.geojson') }}")
+        .then(res => {
+            if (!res.ok) throw new Error("GeoJSON Sawah tidak ditemukan.");
+            return res.json();
+        })
+        .then(sawahData => {
+
+            const sawahStyle = {
+                color: "#0f7d2c",       // outline hijau tua
+                weight: 2,
+                fillColor: "#4caf50",   // isi hijau muda
+                fillOpacity: 0.4
+            };
+
+            const sawahLayer = L.geoJSON(sawahData, {
+                style: sawahStyle,
+                onEachFeature: (feature, layer) => {
+                    const name = feature?.properties?.name || "Kawasan Sawah";
+                    layer.bindPopup(`<b>Area Sawah</b>`);
+                }
+            }).addTo(map);
+
+            // map.fitBounds(sawahLayer.getBounds());
+        })
+        .catch(err => console.error("Error loading Sawah area:", err));
+
+
+
+        fetch("{{ asset('geojson/pemukiman.geojson') }}")
+            .then(res => {
+                if (!res.ok) throw new Error("GeoJSON pemukiman tidak ditemukan.");
+                return res.json();
+            })
+            .then(pemukimanData => {
+
+                const pemukimanStyle = {
+                    color: "#3e5eaeff",       // outline
+                    weight: 2,
+                    fillColor: "#144b8aff",   // isi
+                    fillOpacity: 0.4
+                };
+
+                const pemukimanLayer = L.geoJSON(pemukimanData, {
+                    style: pemukimanStyle,
+                    onEachFeature: (feature, layer) => {
+                        if (feature.properties && feature.properties.name) {
+                            layer.bindPopup(`<b>Kawasan Pemukiman:</b><br>${feature.properties.name}`);
+                        } else {
+                            layer.bindPopup(`<b>Kawasan Pemukiman</b>`);
+                        }
+                    }
+                }).addTo(map);
+
+                // map.fitBounds(pemukimanLayer.getBounds());
+            })
+            .catch(err => console.error("Error loading pemukiman area:", err));
+
     });
+
+    
+
 </script>
 @endpush

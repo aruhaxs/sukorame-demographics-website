@@ -15,6 +15,15 @@
     .data-card.chart-card {
         padding: 1.5rem;
     }
+
+    .data-carousel-wrapper {
+        padding: 3rem 1rem;
+        height: 50vh;
+    }
+
+    .card-content{
+        height: 100%;
+    }
 </style>
 
 <header class="hero-section">
@@ -138,14 +147,14 @@
                         legend: {
                             position: 'top',
                             labels: {
-                                color: '#333',
+                                color: '#fff5f5ff',
                                 font: { size: 14 }
                             }
                         },
                         title: {
                             display: true,
                             text: 'Komposisi Jenis Kelamin',
-                            color: '#1E5631',
+                            color: '#eafff1ff',
                             font: { size: 16, weight: 'bold' }
                         }
                     }
@@ -190,7 +199,7 @@
                         title: {
                             display: true,
                             text: 'Komposisi Kelompok Usia',
-                            color: '#1E5631',
+                            color: '#e7ffefff',
                             font: { size: 16, weight: 'bold' }
                         }
                     }

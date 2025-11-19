@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Perumahan Podomoro Residance Sukorame",
+        "type": "residential"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [111.9910, -7.8115],
+            [111.9925, -7.8115],
+            [111.9925, -7.8100],
+            [111.9910, -7.8100],
+            [111.9910, -7.8115]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Perumahan KBN Sukorame",
+        "type": "residential"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [111.9930, -7.8120],
+            [111.9945, -7.8120],
+            [111.9945, -7.8105],
+            [111.9930, -7.8105],
+            [111.9930, -7.8120]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Perumahan Anggraini/Angraini Sukorame",
+        "type": "residential"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [111.9900, -7.8135],
+            [111.9915, -7.8135],
+            [111.9915, -7.8120],
+            [111.9900, -7.8120],
+            [111.9900, -7.8135]
+          ]
+        ]
+      }
+    }
+  ]
+}
