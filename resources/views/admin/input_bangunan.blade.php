@@ -31,11 +31,18 @@
                 <label for="kategori">Kategori *</label>
                 <select name="kategori" id="kategori" class="form-select" required>
                     <option value="">-- Pilih Kategori --</option>
-                    <option value="Pendidikan" {{ old('kategori') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
+                    <option value="Makanan & Minuman" {{ old('kategori') == 'Makanan & Minuman' ? 'selected' : '' }}>Makanan & Minuman</option>
+                    <option value="Perbelanjaan" {{ old('kategori') == 'Perbelanjaan' ? 'selected' : '' }}>Perbelanjaan</option>
+                    <option value="Akomodasi" {{ old('kategori') == 'Akomodasi' ? 'selected' : '' }}>Akomodasi</option>
+                    <option value="Perumahan" {{ old('kategori') == 'Perumahan' ? 'selected' : '' }}>Perumahan</option>
+                    <option value="Layanan Publik & Administrasi" {{ old('kategori') == 'Layanan Publik & Administrasi' ? 'selected' : '' }}>Layanan Publik & Administrasi</option>
+                    <option value="Pemerintahan & Sipil" {{ old('kategori') == 'Pemerintahan & Sipil' ? 'selected' : '' }}>Pemerintahan & Sipil</option>
                     <option value="Kesehatan" {{ old('kategori') == 'Kesehatan' ? 'selected' : '' }}>Kesehatan</option>
-                    <option value="Tempat Ibadah" {{ old('kategori') == 'Tempat Ibadah' ? 'selected' : '' }}>Tempat Ibadah</option>
-                    <option value="UMKM" {{ old('kategori') == 'UMKM' ? 'selected' : '' }}>UMKM</option>
-                    <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    <option value="Pendidikan" {{ old('kategori') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
+                    <option value="Rekreasi, Seni & Budaya" {{ old('kategori') == 'Rekreasi, Seni & Budaya' ? 'selected' : '' }}>Rekreasi, Seni & Budaya</option>
+                    <option value="Alam & Lingkungan" {{ old('kategori') == 'Alam & Lingkungan' ? 'selected' : '' }}>Alam & Lingkungan</option>
+                    <option value="Otomotif & Transportasi" {{ old('kategori') == 'Otomotif & Transportasi' ? 'selected' : '' }}>Otomotif & Transportasi</option>
+                    <option value="Agama & Spiritual" {{ old('kategori') == 'Agama & Spiritual' ? 'selected' : '' }}>Agama & Spiritual</option>
                 </select>
             </div>
         </div>
@@ -100,7 +107,6 @@
         rtSelect.disabled = true;
 
         if (rwId) {
-            // ✅ PERBAIKAN: URL disesuaikan dengan yang ada di file routes/web.php
             fetch(`/api/get-rt-by-rw/${rwId}`)
                 .then(response => {
                     if (!response.ok) {

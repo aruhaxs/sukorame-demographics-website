@@ -27,6 +27,30 @@
     {{-- ====================================================== --}}
     @stack('styles')
     {{-- Ini akan memuat CSS dari halaman anak (seperti CSS Leaflet) --}}
+    <style>
+        nav, .navbar, header {
+            position: sticky; /* Membuat navbar menempel saat scroll */
+            top: 0;           /* Menempel di paling atas */
+            z-index: 9999;    /* LEBIH TINGGI dari z-index peta (1000) */
+            background-color: var(--color-primary-dark, #001f3f); /* Pastikan navbar punya warna background, tidak transparan */
+        }
+
+        .leaflet-popup-content img.popup-img-fixed {
+        width: 100%;             /* Lebar mengikuti container popup */
+        height: auto;            /* Tinggi menyesuaikan proporsi */
+        max-height: 200px;       /* BATAS KETINGGIAN: Ubah angka ini jika masih terlalu besar/kecil */
+        object-fit: cover;       /* Agar gambar tidak gepeng jika aspek rasionya beda (opsional) */
+        display: block;          /* Menghapus spasi di bawah gambar inline */
+        margin-top: 10px;        /* Memberi jarak sedikit dari teks di atasnya */
+        border-radius: 4px;      /* Pemanis: sudut sedikit membulat */
+        }
+
+        /* Opsional: Membatasi tinggi deskripsi jika teksnya sangat panjang */
+        .leaflet-popup-content p {
+            max-height: 100px;
+            overflow-y: auto;
+        }
+    </style>
 
 </head>
 <body>

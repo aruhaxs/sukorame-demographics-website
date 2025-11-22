@@ -33,12 +33,31 @@
             <div class="form-group">
                 <label for="kategori">Kategori *</label>
                 <select name="kategori" id="kategori" class="form-select" required>
-                    @php $currentKategori = old('kategori', $bangunan->kategori); @endphp
-                    <option value="Pendidikan" {{ $currentKategori == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
-                    <option value="Kesehatan" {{ $currentKategori == 'Kesehatan' ? 'selected' : '' }}>Kesehatan</option>
-                    <option value="Tempat Ibadah" {{ $currentKategori == 'Tempat Ibadah' ? 'selected' : '' }}>Tempat Ibadah</option>
-                    <option value="UMKM" {{ $currentKategori == 'UMKM' ? 'selected' : '' }}>UMKM</option>
-                    <option value="Lainnya" {{ $currentKategori == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    <option value="">-- Pilih Kategori --</option>
+
+                    <option value="Makanan & Minuman" {{ old('kategori', $bangunan->kategori) == 'Makanan & Minuman' ? 'selected' : '' }}>Makanan & Minuman</option>
+                    
+                    <option value="Perbelanjaan" {{ old('kategori', $bangunan->kategori) == 'Perbelanjaan' ? 'selected' : '' }}>Perbelanjaan</option>
+                    
+                    <option value="Akomodasi" {{ old('kategori', $bangunan->kategori) == 'Akomodasi' ? 'selected' : '' }}>Akomodasi</option>
+                    
+                    <option value="Perumahan" {{ old('kategori', $bangunan->kategori) == 'Perumahan' ? 'selected' : '' }}>Perumahan</option>
+                    
+                    <option value="Layanan Publik & Administrasi" {{ old('kategori', $bangunan->kategori) == 'Layanan Publik & Administrasi' ? 'selected' : '' }}>Layanan Publik & Administrasi</option>
+                    
+                    <option value="Pemerintahan & Sipil" {{ old('kategori', $bangunan->kategori) == 'Pemerintahan & Sipil' ? 'selected' : '' }}>Pemerintahan & Sipil</option>
+                    
+                    <option value="Kesehatan" {{ old('kategori', $bangunan->kategori) == 'Kesehatan' ? 'selected' : '' }}>Kesehatan</option>
+                    
+                    <option value="Pendidikan" {{ old('kategori', $bangunan->kategori) == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
+                    
+                    <option value="Rekreasi, Seni & Budaya" {{ old('kategori', $bangunan->kategori) == 'Rekreasi, Seni & Budaya' ? 'selected' : '' }}>Rekreasi, Seni & Budaya</option>
+                    
+                    <option value="Alam & Lingkungan" {{ old('kategori', $bangunan->kategori) == 'Alam & Lingkungan' ? 'selected' : '' }}>Alam & Lingkungan</option>
+                    
+                    <option value="Otomotif & Transportasi" {{ old('kategori', $bangunan->kategori) == 'Otomotif & Transportasi' ? 'selected' : '' }}>Otomotif & Transportasi</option>
+                    
+                    <option value="Agama & Spiritual" {{ old('kategori', $bangunan->kategori) == 'Agama & Spiritual' ? 'selected' : '' }}>Agama & Spiritual</option>
                 </select>
             </div>
         </div>
