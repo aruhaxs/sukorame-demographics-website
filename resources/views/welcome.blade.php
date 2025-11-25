@@ -5,114 +5,247 @@
 @section('content')
 
 <style>
-    .chart-container {
-        width: 100%;
-        height: 100%;
+    .hero-section {
+        position: relative;
+        z-index: 1;
+        height: 60vh;
+        min-height: 400px;
+        background: url('{{ asset("images/klotok.webp") }}') center/cover no-repeat fixed;
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-    .data-card.chart-card {
-        padding: 1.5rem;
-    }
-
-    .data-carousel-wrapper {
-        padding: 3rem 1rem;
-        height: 50vh;
+        text-align: center;
+        color: white;
     }
 
-    .card-content{
-        height: 100%;
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 1;
+        background: linear-gradient(to bottom, rgba(0, 31, 63, 0.7), rgba(0, 31, 63, 0.9));
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 20px;
+    }
+    
+    /* --- DATA SECTION --- */
+    .data-section {
+        background-color: #001f3f;
+        padding: 4rem 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+    }
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #f7a731;
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Card Styling */
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(5px);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tipe Card: Angka Besar */
+    .stat-card.primary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 250px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    }
+    .stat-icon {
+        font-size: 3rem;
+        color: #f7a731;
+        margin-bottom: 1rem;
+    }
+    .stat-value {
+        font-size: 4rem;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        font-size: 1.1rem;
+        color: #a0aec0;
+        font-weight: 500;
+    }
+
+    /* Tipe Card: Grafik */
+    .stat-card.chart-wrapper {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    .chart-container {
+        position: relative;
+        height: 220px;
+        width: 100%;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+    .card-title {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.5rem;
+    }
+
+    /* --- INFO & PROFILE SECTIONS --- */
+    .info-section, .profile-section, .location-section {
+        padding: 4rem 1rem;
+        background: #fff;
+    }
+    .profile-section {
+        background: #f8f9fa;
+    }
+    .map-container iframe {
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 </style>
 
+{{-- HERO --}}
 <header class="hero-section">
-    <div class="overlay"></div>
-    <div class="header-content">
-        <h1 class="title">KELURAHAN SUKORAME</h1>
-        <p class="subtitle">Official Website</p>
+    <div class="hero-content">
+        <h1 class="hero-title">KELURAHAN SUKORAME</h1>
+        <p class="hero-subtitle">Official Website & Layanan Digital</p>
     </div>
 </header>
 
+{{-- DATA DASHBOARD --}}
 <section class="data-section">
-    <h2 class="section-title">DATA PENDUDUK</h2>
-    <div class="data-carousel-wrapper">
-        <button class="carousel-nav prev">←</button>
+    <div class="section-header">
+        <h2 class="section-title">STATISTIK KEPENDUDUKAN</h2>
+        <p style="color: #a0aec0; margin-top: 10px;">Data terkini demografi warga Kelurahan Sukorame</p>
+    </div>
 
-        <div class="data-cards-container">
-            <div class="data-card large">
-                <div class="card-content">
-                    <p class="data-label">Jumlah Penduduk</p>
-                    <p class="data-value">{{ $totalPenduduk }}</p>
-                </div>
-                <div class="card-image-placeholder"></div>
-            </div>
+    <div class="dashboard-grid">
+        {{-- Card Total Penduduk --}}
+        <div class="stat-card primary">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ $totalPenduduk }}</div>
+            <div class="stat-label">Total Penduduk</div>
+        </div>
 
-            <div class="data-card small chart-card">
-                <div class="chart-container">
-                    <canvas id="genderChart"></canvas>
-                </div>
-            </div>
-
-            <div class="data-card large">
-                <div class="card-content">
-                    <p class="data-label">Total Kartu Keluarga (KK)</p>
-                    <p class="data-value">{{ $totalKK }}</p>
-                </div>
-                <div class="card-image-placeholder"></div>
-            </div>
-            
-            <div class="data-card small chart-card">
-                 <div class="chart-container">
-                    <canvas id="ageChart"></canvas>
-                </div>
+        {{-- Card Chart Gender --}}
+        <div class="stat-card chart-wrapper">
+            <h3 class="card-title">Jenis Kelamin</h3>
+            <div class="chart-container">
+                <canvas id="genderChart"></canvas>
             </div>
         </div>
 
-        <button class="carousel-nav next">→</button>
+        {{-- Card Kepala Keluarga --}}
+        <div class="stat-card primary">
+            <div class="stat-icon"><i class="bi bi-house-door-fill"></i></div>
+            <div class="stat-value">{{ $totalKK }}</div>
+            <div class="stat-label">Kepala Keluarga</div>
+        </div>
+        
+        {{-- 
+            DIKOMENTARI SEMENTARA (HIDDEN)
+            Bagian Chart Kelompok Usia
+        --}}
+        {{-- 
+        <div class="stat-card chart-wrapper">
+            <h3 class="card-title">Kelompok Usia</h3>
+            <div class="chart-container">
+                <canvas id="ageChart"></canvas>
+            </div>
+        </div>
+        --}}
     </div>
 </section>
 
+{{-- BERITA / INFO --}}
 <section class="info-section">
-    <h2 class="section-title">BERITA dan INFORMASI</h2>
-    <div class="info-card-container">
-        <div class="info-card">
-            <div class="info-text">
-                <h3 class="info-title">Program Pemberdayaan Masyarakat</h3>
-                <p class="info-description">
-                    Kelurahan Sukorame aktif mengadakan berbagai program untuk meningkatkan keterampilan dan kesejahteraan warga.
-                </p>
-                <a href="#" class="info-button">Selengkapnya</a>
-            </div>
-            <div class="info-image">
-                <img src="{{ asset('images/berita.png') }}" alt="Informasi">
-            </div>
-        </div>
-        <div class="info-navigation">
-            <span class="nav-arrow left">←</span>
-            <span class="nav-arrow right">→</span>
-        </div>
-    </div>
-</section>
-
-<section class="profile-section">
-    <div class="profile-content">
-        <div class="profile-image-container">
-            <img src="{{ asset('images/lurah.jpeg') }}" alt="Vita Sari" class="profile-photo">
-        </div>
-        <div class="profile-text">
-            <h2 class="profile-name">Vita Sari, SE. MM.</h2>
-            <p class="profile-description">
-                Vita Sari, S.E., M.M., memegang jabatan sebagai Lurah Kelurahan Sukorame, yang menempatkannya sebagai pimpinan eksekutif tertinggi yang bertanggung jawab atas seluruh aspek pemerintahan, pembangunan, dan kemasyarakatan di wilayahnya.
+    <div class="container" style="max-width: 1000px; margin: 0 auto; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+        <div class="info-text" style="flex: 1; min-width: 300px;">
+            <h2 style="font-size: 2rem; font-weight: 700; color: #001f3f; margin-bottom: 1rem;">Program Unggulan</h2>
+            <h3 style="font-size: 1.2rem; color: #f7a731; margin-bottom: 1rem;">Pemberdayaan Masyarakat</h3>
+            <p style="color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+                Kelurahan Sukorame aktif mengadakan berbagai program untuk meningkatkan keterampilan dan kesejahteraan warga, mulai dari pelatihan UMKM hingga kegiatan sosial kemasyarakatan.
             </p>
+            <a href="https://www.instagram.com/prokopimkotakediri?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" style="display: inline-block; padding: 10px 20px; background: #001f3f; color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">Baca Selengkapnya</a>
+        </div>
+        <div class="info-image" style="flex: 1; min-width: 300px;">
+            <img src="{{ asset('images/umkm.webp') }}" alt="Informasi" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
         </div>
     </div>
 </section>
 
+{{-- PROFIL LURAH --}}
+<section class="profile-section">
+    <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
+        <h2 style="font-size: 2rem; font-weight: 700; color: #001f3f; margin-bottom: 2rem;">PIMPINAN KAMI</h2>
+        <div style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; text-align: left;">
+            <img src="{{ asset('images/lurah.jpeg') }}" alt="Vita Sari" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid #f7a731;">
+            <div style="flex: 1;">
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #001f3f; margin-bottom: 0.5rem;">Vita Sari, SE. MM.</h3>
+                <p style="color: #888; margin-bottom: 1rem; font-weight: 500;">Lurah Kelurahan Sukorame</p>
+                <p style="color: #555; line-height: 1.6;">
+                    "Berkomitmen untuk memberikan pelayanan publik yang transparan, akuntabel, dan mengutamakan kesejahteraan seluruh warga Sukorame."
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- LOKASI --}}
 <section class="location-section">
-    <h2 class="section-title">LOKASI</h2>
-    <div class="map-container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15810.19831623955!2d112.00898863955077!3d-7.836906900000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e78570957c5a4ad%3A0x2358055361304132!2sSukorame%2C%20Kec.%20Mojoroto%2C%20Kota%20Kediri%2C%20Jawa%20Timur!5e0!3m2!1sid!2sid!4v1734327774213!5m2!1sid!2sid" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="section-header">
+        <h2 class="section-title" style="color: #001f3f;">LOKASI KANTOR</h2>
+    </div>
+    <div class="map-container" style="max-width: 1200px; margin: 0 auto;">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.088333276634!2d112.01639897588352!3d-7.780447377196231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e785731057e6211%3A0xc47414732168395e!2sKantor%20Kelurahan%20Sukorame!5e0!3m2!1sid!2sid!4v1716300000000!5m2!1sid!2sid" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 </section>
 
@@ -120,12 +253,19 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const jumlahLakiLaki = {{ $jumlahLakiLaki }};
-        const jumlahPerempuan = {{ $jumlahPerempuan }};
-        const usiaData = @json($usiaData);
+        // Data dari Controller
+        const jumlahLakiLaki = {{ $jumlahLakiLaki ?? 0 }};
+        const jumlahPerempuan = {{ $jumlahPerempuan ?? 0 }};
+        const usiaData = @json($usiaData ?? ['labels' => [], 'data' => []]);
 
+        // Pengaturan Font Global Chart agar terlihat di background gelap
+        Chart.defaults.color = '#e0e0e0';
+        Chart.defaults.font.family = "'Poppins', sans-serif";
+
+        // 1. Chart Gender (Doughnut)
         const ctxGender = document.getElementById('genderChart');
         if (ctxGender) {
             new Chart(ctxGender, {
@@ -133,35 +273,28 @@
                 data: {
                     labels: ['Laki-laki', 'Perempuan'],
                     datasets: [{
-                        label: 'Jumlah',
                         data: [jumlahLakiLaki, jumlahPerempuan],
-                        backgroundColor: ['#4b6cb7', '#f7a731'],
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverOffset: 4
+                        backgroundColor: ['#4b6cb7', '#f7a731'], // Biru & Oranye
+                        borderColor: 'transparent',
+                        hoverOffset: 10
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#fff5f5ff',
-                                font: { size: 14 }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Komposisi Jenis Kelamin',
-                            color: '#eafff1ff',
-                            font: { size: 16, weight: 'bold' }
+                            position: 'right',
+                            labels: { color: '#fff', boxWidth: 12 }
                         }
-                    }
+                    },
+                    cutout: '70%',
                 }
             });
         }
 
+        /*
+        // 2. Chart Usia (Bar) - SEMENTARA DINONAKTIFKAN
         const ctxAge = document.getElementById('ageChart');
         if (ctxAge) {
             new Chart(ctxAge, {
@@ -169,43 +302,34 @@
                 data: {
                     labels: usiaData.labels,
                     datasets: [{
-                        label: 'Jumlah Penduduk',
+                        label: 'Jiwa',
                         data: usiaData.data,
-                        backgroundColor: [
-                            '#f7a731', // Oranye
-                            '#8c81ff', // Ungu
-                            '#4b6cb7', // Biru
-                            '#55A08F', // Hijau Tosca
-                            '#dc3545'  // Merah
-                        ],
-                        borderRadius: 5
+                        backgroundColor: '#f7a731',
+                        borderRadius: 4,
+                        barThickness: 20
                     }]
                 },
                 options: {
-                    indexAxis: 'y',
+                    indexAxis: 'y', // Horizontal Bar
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: {
-                            ticks: { color: '#555' },
-                            grid: { display: true, color: '#eee' }
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#a0aec0' }
                         },
                         y: {
-                            ticks: { color: '#333' },
-                            grid: { display: false }
+                            grid: { display: false },
+                            ticks: { color: '#fff' }
                         }
                     },
                     plugins: {
-                        legend: { display: false },
-                        title: {
-                            display: true,
-                            text: 'Komposisi Kelompok Usia',
-                            color: '#e7ffefff',
-                            font: { size: 16, weight: 'bold' }
-                        }
+                        legend: { display: false }
                     }
                 }
             });
         }
+        */
     });
 </script>
 @endpush

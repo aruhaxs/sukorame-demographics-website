@@ -12,40 +12,47 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Tambahkan ini di <head> -->
-    <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-
-    {{-- Chart.js (jika perlu) --}}
+    {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    {{-- ====================================================== --}}
-    {{--    BARU: Tambahkan @stack('styles') DI SINI        --}}
-    {{-- ====================================================== --}}
+    {{-- Stack Styles (Untuk CSS Leaflet/Peta) --}}
     @stack('styles')
-    {{-- Ini akan memuat CSS dari halaman anak (seperti CSS Leaflet) --}}
+
     <style>
+        /* --- PERBAIKAN NAVBAR (SANGAT PENTING) --- */
         nav, .navbar, header {
-            position: sticky; /* Membuat navbar menempel saat scroll */
-            top: 0;           /* Menempel di paling atas */
-            z-index: 9999;    /* LEBIH TINGGI dari z-index peta (1000) */
-            background-color: var(--color-primary-dark, #001f3f); /* Pastikan navbar punya warna background, tidak transparan */
+            position: sticky;              /* Tetap sticky */
+            position: -webkit-sticky;      /* Support Safari */
+            top: 0;
+            z-index: 9999;                 /* Layer tinggi */
+            background-color: var(--color-primary-dark, #001f3f); 
+            
+            /* KUNCI PERBAIKAN: */
+            overflow: visible !important;  /* Izinkan dropdown "tumpah" keluar */
+            height: auto !important;       /* Cegah navbar gepeng */
+            min-height: 70px;              /* Jaga tinggi minimal */
         }
 
+        /* Pastikan Dropdown Menu punya prioritas lebih tinggi dari Navbar */
+        .dropdown-menu {
+            z-index: 10000 !important;
+            margin-top: 0; /* Rapikan jarak */
+        }
+
+        /* --- STYLING POPUP PETA (SINTAKS BARU ANDA) --- */
         .leaflet-popup-content img.popup-img-fixed {
-        width: 100%;             /* Lebar mengikuti container popup */
-        height: auto;            /* Tinggi menyesuaikan proporsi */
-        max-height: 200px;       /* BATAS KETINGGIAN: Ubah angka ini jika masih terlalu besar/kecil */
-        object-fit: cover;       /* Agar gambar tidak gepeng jika aspek rasionya beda (opsional) */
-        display: block;          /* Menghapus spasi di bawah gambar inline */
-        margin-top: 10px;        /* Memberi jarak sedikit dari teks di atasnya */
-        border-radius: 4px;      /* Pemanis: sudut sedikit membulat */
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+            margin-top: 10px;
+            border-radius: 4px;
         }
 
-        /* Opsional: Membatasi tinggi deskripsi jika teksnya sangat panjang */
         .leaflet-popup-content p {
             max-height: 100px;
             overflow-y: auto;
@@ -57,15 +64,15 @@
 
     @include('partials.navbar')
 
-    {{-- Konten halaman akan masuk di sini --}}
+    {{-- Konten halaman --}}
     @yield('content')
 
     @include('partials.footer')
 
-    {{-- Skrip dari halaman anak akan dimuat di sini --}}
+    {{-- Skrip halaman anak --}}
     @stack('scripts')
 
-    {{-- Skrip utama Anda (jika ada) --}}
+    {{-- Skrip utama --}}
     <script src="{{ asset('js/carousel.js') }}"></script>
 </body>
 </html>
