@@ -5,70 +5,104 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
-use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class HomeController extends Controller
 {
+    /**
+     * Menampilkan Halaman Beranda / Dashboard
+     */
     public function index(): View
     {
-        // 1. AMBIL DATA
+        // 1. AMBIL DATA DARI FIREBASE
+        $data = $this->fetchFirebaseData();
+
+        // 2. OLAH DATA PENDUDUK (Termasuk Gender & KK)
+        $statsPenduduk = $this->processPendudukStats($data['penduduk']);
+
+        // 3. OLAH DATA BANGUNAN (Hanya Total)
+        $totalBangunan = $this->processBangunanStats($data['bangunan']);
+
+        // 4. KIRIM KE VIEW
+        return view('welcome', [
+            'totalPenduduk'  => $statsPenduduk['total'],
+            'totalKK'        => $statsPenduduk['kk'],
+            'totalLaki'      => $statsPenduduk['laki'],
+            'totalPerempuan' => $statsPenduduk['perempuan'],
+            'totalBangunan'  => $totalBangunan,
+        ]);
+    }
+
+    /**
+     * ------------------------------------------------------------------
+     * PRIVATE METHODS (HELPER)
+     * ------------------------------------------------------------------
+     */
+
+    /**
+     * Mengambil data mentah dari Firebase secara paralel
+     */
+    private function fetchFirebaseData(): array
+    {
         $firebaseUrl = env('FIREBASE_DATABASE_URL');
         $firebaseSecret = env('FIREBASE_DB_SECRET');
 
-        if (!str_ends_with($firebaseUrl, '/')) $firebaseUrl .= '/';
-
-        $response = Http::get($firebaseUrl . 'penduduks.json', ['auth' => $firebaseSecret]);
-        $rawData = $response->json() ?? [];
-
-        $pendudukData = collect($rawData)->map(fn($item) => (object) $item);
-
-        // 2. HITUNG DATA DASAR
-        $totalPenduduk = $pendudukData->count();
-        $jumlahLakiLaki = $pendudukData->where('jenisKelamin', 'Laki-laki')->count();
-        $jumlahPerempuan = $pendudukData->where('jenisKelamin', 'Perempuan')->count();
-        
-        // Hitung KK berdasarkan string "Kepala Keluarga"
-        $totalKK = $pendudukData->filter(function ($item) {
-            return isset($item->statusDiKeluarga) && $item->statusDiKeluarga === 'Kepala Keluarga';
-        })->count();
-
-        // 3. HITUNG USIA (Logic Chart)
-        // Kategori sesuai gambar referensi: 0-4, 5-9, dst.
-        $ageRanges = [
-            '0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40-44', '45-49',
-            '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80-84', '85+'
-        ];
-        
-        $dataCounts = array_fill(0, count($ageRanges), 0);
-        $now = Carbon::now();
-
-        foreach ($pendudukData as $penduduk) {
-            // Cek kedua kemungkinan format penulisan di Firebase
-            $tglLahir = $penduduk->tanggalLahir ?? $penduduk->tanggal_lahir ?? null;
-
-            if (empty($tglLahir)) continue;
-
-            try {
-                $age = $now->diffInYears(Carbon::parse($tglLahir));
-                
-                // Rumus matematika sederhana untuk menentukan index array
-                // Contoh: Umur 7 tahun. 7 / 5 = 1.4 -> floor jadi 1. Index 1 adalah '5-9'
-                $ageIndex = floor($age / 5);
-
-                if ($ageIndex < 0) continue;
-                if ($ageIndex >= count($ageRanges)) $ageIndex = count($ageRanges) - 1; // Untuk 85+
-
-                $dataCounts[$ageIndex]++;
-            } catch (\Exception $e) { continue; }
+        // Pastikan URL berakhiran slash
+        if (!str_ends_with($firebaseUrl, '/')) {
+            $firebaseUrl .= '/';
         }
 
-        $usiaData = [
-            'labels' => $ageRanges,
-            'data'   => $dataCounts
-        ];
+        // Request Paralel agar loading lebih cepat
+        $responses = Http::pool(fn ($pool) => [
+            $pool->as('penduduk')->get($firebaseUrl . 'penduduks.json', ['auth' => $firebaseSecret]),
+            $pool->as('bangunan')->get($firebaseUrl . 'bangunans.json', ['auth' => $firebaseSecret]),
+        ]);
 
-        return view('welcome', compact(
-            'totalPenduduk', 'jumlahLakiLaki', 'jumlahPerempuan', 'totalKK', 'usiaData'
-        ));
+        return [
+            'penduduk' => $responses['penduduk']->json() ?? [],
+            'bangunan' => $responses['bangunan']->json() ?? [],
+        ];
+    }
+
+    /**
+     * Menghitung statistik kependudukan (Total, KK, Laki, Perempuan)
+     */
+    private function processPendudukStats(array $rawData): array
+    {
+        $data = collect($rawData)->map(fn($item) => (object) $item);
+
+        return [
+            'total' => $data->count(),
+            
+            // Hitung Kepala Keluarga
+            'kk' => $data->filter(function ($item) {
+                return isset($item->statusDiKeluarga) && $item->statusDiKeluarga === 'Kepala Keluarga';
+            })->count(),
+
+            // Hitung Laki-laki (Field: 'jenisKelamin')
+            'laki' => $data->filter(function ($item) {
+                return isset($item->jenisKelamin) && $item->jenisKelamin === 'Laki-laki';
+            })->count(),
+
+            // Hitung Perempuan (Field: 'jenisKelamin')
+            'perempuan' => $data->filter(function ($item) {
+                return isset($item->jenisKelamin) && $item->jenisKelamin === 'Perempuan';
+            })->count(),
+        ];
+    }
+
+    /**
+     * Menghitung statistik bangunan (Hanya bangunan valid)
+     */
+    private function processBangunanStats(array $rawData): int
+    {
+        $data = collect($rawData)->map(fn($item) => (object) $item);
+
+        // Filter: Hanya ambil yang field 'kategori'-nya ada isinya
+        $validBangunan = $data->filter(function ($item) {
+            return !empty($item->kategori);
+        });
+
+        return $validBangunan->count();
     }
 }

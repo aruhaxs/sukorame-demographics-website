@@ -36,15 +36,12 @@
     }
 </style>
 
-{{-- JUDUL HALAMAN --}}
 <h1 class="admin-title">Dashboard</h1>
 
-{{-- NOTIFIKASI (jika ada) --}}
 @if(session('success'))
     <div class="alert-success">{{ session('success') }}</div>
 @endif
 
-{{-- KARTU RINGKASAN DATA --}}
 <div class="summary-card-grid">
     <div class="summary-card">
         <p>Total Penduduk</p>
@@ -127,7 +124,6 @@
                 datasets: [{
                     label: 'Jumlah Penduduk',
                     data: ageChartData.data,
-                    // ✅ PERBAIKAN: Menggunakan array warna berbeda untuk setiap bar
                     backgroundColor: [
                         'rgba(122, 186, 120, 0.8)', // Hijau muda (Anak-anak)
                         'rgba(10, 104, 71, 0.8)',   // Hijau tua (Remaja)

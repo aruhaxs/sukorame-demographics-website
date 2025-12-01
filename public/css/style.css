@@ -1,7 +1,7 @@
 /* --- Styling Navbar --- */
 .navbar {
-    background-color: #0d1e35;
-    color: #fff;
+    background-color: #fff;
+    color: #6f42c1;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -34,6 +34,197 @@
 .navbar-links a:hover {
     color: #4b6cb7; /* Ubah warna saat kursor di atasnya */
 }
+/* --- FOOTER STYLES --- */
+.main-footer {
+    background-color: #001f3f; /* Warna Navy Utama */
+    color: #e2e8f0;
+    padding-top: 4rem;
+    font-family: 'Poppins', sans-serif;
+    border-top: 5px solid #f7a731; /* Aksen Emas di atas */
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+}
+
+/* Kolom Identitas */
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.footer-logo {
+    width: 50px;
+    height: auto;
+}
+
+.brand-text h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.brand-text span {
+    font-size: 0.85rem;
+    color: #f7a731; /* Aksen Emas */
+}
+
+.footer-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+}
+
+/* Social Media Icons */
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.social-links a:hover {
+    background-color: #f7a731;
+    color: #001f3f;
+    transform: translateY(-3px);
+}
+
+/* Headings */
+
+.footer-heading {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.footer-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background-color: #f7a731;
+    border-radius: 2px;
+}
+
+/* Links List */
+.footer-links, .contact-list, .service-hours {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-block;
+}
+
+.footer-links a:hover {
+    color: #f7a731;
+    padding-left: 5px; /* Efek geser saat hover */
+}
+
+/* Contact List */
+.contact-list li {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.contact-list i {
+    color: #f7a731;
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+
+/* Service Hours */
+.service-hours li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0.5rem;
+}
+
+.service-hours .hours {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.service-hours .closed {
+    color: #ef4444; /* Merah untuk Tutup */
+}
+
+/* Copyright Bar */
+.footer-bottom {
+    background-color: #00162d; /* Versi lebih gelap dari Navy */
+    padding: 1.5rem;
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-bottom a {
+    color: #f7a731;
+    text-decoration: none;
+}
+
+.footer-bottom a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .footer-container {
+        gap: 2rem;
+    }
+
+    .footer-brand {
+        flex-direction: column; /* Tumpuk Logo di atas, Teks di bawah */
+        justify-content: center;
+        text-align: center;
+        gap: 0.5rem; /* Jarak antara logo dan teks */
+    }
+}
 
 /* --- Aturan Dasar dan Tata Letak Umum --- */
 body {
@@ -62,7 +253,7 @@ section {
 .hero-section {
     position: relative;
     height: 400px;
-    background-image: url('../images/masjid.jpg'); /* Ganti dengan gambar header Anda */
+    background-image: url('../images/klotok.webp'); /* Ganti dengan gambar header Anda */
     background-size: cover;
     background-position: center;
     display: flex;
