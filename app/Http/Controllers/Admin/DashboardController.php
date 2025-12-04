@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Carbon\Carbon;
@@ -24,13 +23,21 @@ class DashboardController extends Controller
         }
 
         // --- 2. AMBIL DATA DARI FIREBASE ---
-        $penduduksRaw  = Http::get($firebaseUrl . 'penduduks.json', ['auth' => $firebaseSecret])->json() ?? [];
-        $rtsRaw        = Http::get($firebaseUrl . 'rts.json', ['auth' => $firebaseSecret])->json() ?? [];
-        $rwsRaw        = Http::get($firebaseUrl . 'rws.json', ['auth' => $firebaseSecret])->json() ?? [];
-        $komoditasRaw  = Http::get($firebaseUrl . 'komoditas.json', ['auth' => $firebaseSecret])->json() ?? [];
-        $bangunansRaw  = Http::get($firebaseUrl . 'bangunans.json', ['auth' => $firebaseSecret])->json() ?? [];
+        // Mengambil data penduduk
+        $penduduksRaw = Http::get($firebaseUrl . 'penduduks.json', ['auth' => $firebaseSecret])->json() ?? [];
+        
+        // Mengambil data rtrw (sesuai struktur: rtrw -> rt & rw)
+        $rtrwRaw      = Http::get($firebaseUrl . 'rtrw.json', ['auth' => $firebaseSecret])->json() ?? [];
+        
+        // Mengambil data bangunan
+        $bangunansRaw = Http::get($firebaseUrl . 'bangunans.json', ['auth' => $firebaseSecret])->json() ?? [];
 
-        // --- 3. FILTER DATA BANGUNAN (PERBAIKAN DI SINI) ---
+        // --- 3. PROSES DATA RT & RW TERPISAH ---
+        // Memisahkan data rt dan rw dari parent rtrw untuk dihitung sendiri-sendiri
+        $dataRt = $rtrwRaw['rt'] ?? [];
+        $dataRw = $rtrwRaw['rw'] ?? [];
+
+        // --- 4. FILTER DATA BANGUNAN ---
         // Kita ubah ke Collection dulu
         $bangunanCollection = collect($bangunansRaw)->map(fn($item) => (object)$item);
 
@@ -39,15 +46,15 @@ class DashboardController extends Controller
             return !empty($item->kategori); 
         });
 
-        // --- 4. HITUNG STATISTIK UTAMA ---
+        // --- 5. HITUNG STATISTIK UTAMA ---
         $data = [
             'total_penduduk'  => count($penduduksRaw),
-            'total_rt_rw'     => count($rtsRaw) + count($rwsRaw),
-            'total_komoditas' => count($komoditasRaw),
-            'total_bangunan'  => $validBangunan->count(), // Menggunakan hasil filter (seharusnya 4)
+            'total_rt'        => count($dataRt), // Hitung total RT sendiri
+            'total_rw'        => count($dataRw), // Hitung total RW sendiri
+            'total_bangunan'  => $validBangunan->count(),
         ];
 
-        // --- 5. PROSES CHART GENDER & USIA ---
+        // --- 6. PROSES CHART GENDER & USIA ---
         $penduduks = collect($penduduksRaw)->map(fn($item) => (object)$item);
         
         $genderCounts = [
@@ -99,7 +106,7 @@ class DashboardController extends Controller
             }
         }
 
-        // --- 6. FORMAT DATA UNTUK CHART JS ---
+        // --- 7. FORMAT DATA UNTUK CHART JS ---
         $genderChartData = [
             'labels' => array_keys($genderCounts),
             'data'   => array_values($genderCounts)
