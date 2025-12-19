@@ -221,16 +221,19 @@
 
 <script>
     const categoryConfig = {
-        "Makanan & Minuman": { color: "#f43f5e", icon: "restaurant.svg" },
-        "Perbelanjaan": { color: "#f59e0b", icon: "shop.svg" },
-        "Akomodasi": { color: "#3b82f6", icon: "lodging.svg" },
-        "Perumahan": { color: "#64748b", icon: "home.svg" },
-        "Layanan Publik": { color: "#14b8a6", icon: "town-hall.svg" },
-        "Kesehatan": { color: "#ef4444", icon: "hospital-JP.svg" },
-        "Pendidikan": { color: "#8b5cf6", icon: "college.svg" },
-        "Wisata": { color: "#10b981", icon: "art-gallery.svg" },
-        "Tempat Ibadah": { color: "#eab308", icon: "religious-muslim.svg" },
-        "Default": { color: "#10b981", icon: "lainnya.svg" }
+        "Makanan & Minuman": { color: "#e57373", icon: "restaurant.svg" },
+        "Perbelanjaan": { color: "#ffb74d", icon: "shop.svg" },
+        "Akomodasi": { color: "#64b5f6", icon: "lodging.svg" },
+        "Perumahan": { color: "#9e9e9e", icon: "home.svg" },
+        "Layanan Publik & Administrasi": { color: "#4db6ac", icon: "place-of-worship.svg" },
+        "Pemerintahan & Sipil": { color: "#673ab7", icon: "town-hall.svg" },
+        "Kesehatan": { color: "#ff3d00", icon: "hospital-JP.svg" },
+        "Pendidikan": { color: "#1565c0", icon: "college.svg" },
+        "Rekreasi, Seni & Budaya": { color: "#81c784", icon: "art-gallery.svg" },
+        "Alam & Lingkungan": { color: "#388e3c", icon: "zoo.svg" },
+        "Otomotif & Transportasi": { color: "#ff9800", icon: "bus.svg" },
+        "Agama & Spiritual": { color: "#fdd835", icon: "religious-muslim.svg" },
+        "Default": { color: "#0a6847", icon: "lainnya.svg" }
     };
 
     let map, buildingsLayer, allMapData;

@@ -20,6 +20,17 @@
     .dashboard-container {
         font-family: 'Inter', sans-serif;
         color: var(--color-text-light);
+        /* Setup Flexbox untuk Footer Sticky */
+        display: flex;
+        flex-direction: column;
+        min-height: 85vh; /* Memastikan tinggi minimal agar footer di bawah */
+    }
+
+    /* Wrapper konten utama agar footer terdorong ke bawah */
+    .dashboard-content {
+        flex: 1;
+        /* Menambahkan jarak antara konten paling bawah dengan footer */
+        margin-bottom: 4rem; 
     }
 
     .admin-header {
@@ -161,93 +172,96 @@
 
 <div class="dashboard-container">
     
-    {{-- Header --}}
-    <div class="admin-header">
-        <h1 class="admin-title">Dashboard Overview</h1>
-        <span style="color: var(--color-text-muted); font-size: 0.9rem;">
-            Update Terakhir: {{ \Carbon\Carbon::now()->format('d M Y') }}
-        </span>
-    </div>
-
-    {{-- Alert Messages --}}
-    @if(session('success'))
-        <div class="alert-success">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            {{ session('success') }}
+    {{-- Wrapper Konten Utama (agar footer terdorong ke bawah) --}}
+    <div class="dashboard-content">
+        {{-- Header --}}
+        <div class="admin-header">
+            <h1 class="admin-title">Dashboard Overview</h1>
+            <span style="color: var(--color-text-muted); font-size: 0.9rem;">
+                Update Terakhir: {{ \Carbon\Carbon::now()->format('d M Y') }}
+            </span>
         </div>
-    @endif
 
-    {{-- Summary Cards (Updated: RT & RW Separate, Removed Komoditas) --}}
-    <div class="stats-grid">
-        {{-- Card 1: Total Penduduk --}}
-        <div class="stat-card">
-            <div class="stat-header">
-                <p class="stat-title">Total Penduduk</p>
-                <div class="stat-icon">
-                    {{-- Icon Users --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        {{-- Alert Messages --}}
+        @if(session('success'))
+            <div class="alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Summary Cards --}}
+        <div class="stats-grid">
+            {{-- Card 1: Total Penduduk --}}
+            <div class="stat-card">
+                <div class="stat-header">
+                    <p class="stat-title">Total Penduduk</p>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                </div>
+                <div class="stat-value">{{ number_format($data['total_penduduk']) }}</div>
+            </div>
+
+            {{-- Card 2: Total RT --}}
+            <div class="stat-card">
+                <div class="stat-header">
+                    <p class="stat-title">Total RT</p>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                </div>
+                <div class="stat-value">{{ $data['total_rt'] ?? 0 }}</div>
+            </div>
+
+            {{-- Card 3: Total RW --}}
+            <div class="stat-card">
+                <div class="stat-header">
+                    <p class="stat-title">Total RW</p>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                    </div>
+                </div>
+                <div class="stat-value">{{ $data['total_rw'] ?? 0 }}</div>
+            </div>
+
+            {{-- Card 4: Total Bangunan --}}
+            <div class="stat-card">
+                <div class="stat-header">
+                    <p class="stat-title">Total Bangunan</p>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="9" y1="18" x2="9" y2="18.01"></line><line x1="15" y1="18" x2="15" y2="18.01"></line><line x1="9" y1="14" x2="9" y2="14.01"></line><line x1="15" y1="14" x2="15" y2="14.01"></line><line x1="9" y1="10" x2="9" y2="10.01"></line><line x1="15" y1="10" x2="15" y2="10.01"></line><line x1="9" y1="6" x2="9" y2="6.01"></line><line x1="15" y1="6" x2="15" y2="6.01"></line></svg>
+                    </div>
+                </div>
+                <div class="stat-value">{{ number_format($data['total_bangunan']) }}</div>
+            </div>
+        </div>
+
+        {{-- Charts Section --}}
+        <div class="charts-wrapper">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Jenis Kelamin</h3>
+                </div>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="genderChart"></canvas>
                 </div>
             </div>
-            <div class="stat-value">{{ number_format($data['total_penduduk']) }}</div>
-        </div>
-
-        {{-- Card 2: Total RT --}}
-        <div class="stat-card">
-            <div class="stat-header">
-                <p class="stat-title">Total RT</p>
-                <div class="stat-icon">
-                    {{-- Icon Map Pin/Home --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Kelompok Usia</h3>
+                </div>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="ageChart"></canvas>
                 </div>
             </div>
-            <div class="stat-value">{{ $data['total_rt'] ?? 0 }}</div>
         </div>
+    </div> {{-- End .dashboard-content --}}
 
-        {{-- Card 3: Total RW --}}
-        <div class="stat-card">
-            <div class="stat-header">
-                <p class="stat-title">Total RW</p>
-                <div class="stat-icon">
-                    {{-- Icon Map --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-                </div>
-            </div>
-            <div class="stat-value">{{ $data['total_rw'] ?? 0 }}</div>
-        </div>
+    {{-- INCLUDE FOOTER ADMIN
+    @include('partials.admin_footer') --}}
 
-        {{-- Card 4: Total Bangunan --}}
-        <div class="stat-card">
-            <div class="stat-header">
-                <p class="stat-title">Total Bangunan</p>
-                <div class="stat-icon">
-                    {{-- Icon Building --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="9" y1="18" x2="9" y2="18.01"></line><line x1="15" y1="18" x2="15" y2="18.01"></line><line x1="9" y1="14" x2="9" y2="14.01"></line><line x1="15" y1="14" x2="15" y2="14.01"></line><line x1="9" y1="10" x2="9" y2="10.01"></line><line x1="15" y1="10" x2="15" y2="10.01"></line><line x1="9" y1="6" x2="9" y2="6.01"></line><line x1="15" y1="6" x2="15" y2="6.01"></line></svg>
-                </div>
-            </div>
-            <div class="stat-value">{{ number_format($data['total_bangunan']) }}</div>
-        </div>
-    </div>
-
-    {{-- Charts Section --}}
-    <div class="charts-wrapper">
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3 class="chart-title">Jenis Kelamin</h3>
-            </div>
-            <div style="position: relative; height: 300px; width: 100%;">
-                <canvas id="genderChart"></canvas>
-            </div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3 class="chart-title">Kelompok Usia</h3>
-            </div>
-            <div style="position: relative; height: 300px; width: 100%;">
-                <canvas id="ageChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+</div> {{-- End .dashboard-container --}}
 @endsection
 
 @push('scripts')

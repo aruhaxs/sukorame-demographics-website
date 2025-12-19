@@ -39,7 +39,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #001f3f; /* UBAH: Jadi Biru Tua */
+            background-color: #ffffff;
             padding: 1rem 2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative;
@@ -126,7 +126,7 @@
                 right: -300px; 
                 width: 300px;
                 height: 100vh;
-                background-color: #001f3f; /* UBAH: Background menu mobile jadi biru */
+                background-color: #ffffff;
                 box-shadow: -2px 0 5px rgba(0,0,0,0.2);
 
                 flex-direction: column;
