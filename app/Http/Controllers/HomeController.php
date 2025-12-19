@@ -3,86 +3,106 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Penduduk;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
+use Illuminate\Support\Collection;
 
 class HomeController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan Halaman Beranda / Dashboard
+     */
+    public function index(): View
     {
-        $pendudukData = Penduduk::all();
+        // 1. AMBIL DATA DARI FIREBASE
+        $data = $this->fetchFirebaseData();
 
-        $totalPenduduk = $pendudukData->count();
-        $jumlahLakiLaki = $pendudukData->where('jenis_kelamin', 'Laki-laki')->count();
-        $jumlahPerempuan = $pendudukData->where('jenis_kelamin', 'Perempuan')->count();
+        // 2. OLAH DATA PENDUDUK (Termasuk Gender & KK)
+        $statsPenduduk = $this->processPendudukStats($data['penduduk']);
 
-        // Mengambil data kategori usia yang sudah dihitung
-        $usiaData = $this->getUsiaKategoriData($pendudukData);
+        // 3. OLAH DATA BANGUNAN (Hanya Total)
+        $totalBangunan = $this->processBangunanStats($data['bangunan']);
 
-        // Kirim data yang dibutuhkan ke view
-        return view('welcome', compact(
-            'totalPenduduk',
-            'jumlahLakiLaki',
-            'jumlahPerempuan',
-            'usiaData' // <-- Mengirim data usia yang sudah diproses
-        ));
+        // 4. KIRIM KE VIEW
+        return view('welcome', [
+            'totalPenduduk'  => $statsPenduduk['total'],
+            'totalKK'        => $statsPenduduk['kk'],
+            'totalLaki'      => $statsPenduduk['laki'],
+            'totalPerempuan' => $statsPenduduk['perempuan'],
+            'totalBangunan'  => $totalBangunan,
+        ]);
     }
 
     /**
-     * Mengelompokkan penduduk berdasarkan kategori usia dan menghitung persentase
-     * setiap kategori dari total penduduk yang valid.
+     * ------------------------------------------------------------------
+     * PRIVATE METHODS (HELPER)
+     * ------------------------------------------------------------------
      */
-    private function getUsiaKategoriData($pendudukData)
+
+    /**
+     * Mengambil data mentah dari Firebase secara paralel
+     */
+    private function fetchFirebaseData(): array
     {
-        $kategori = [
-            'Bayi' => 0,       // 0 - 1
-            'Anak-anak' => 0,  // 2 - 12
-            'Remaja' => 0,     // 13 - 17
-            'Dewasa' => 0,     // 18 - 59
-            'Lansia' => 0,     // 60+
-        ];
+        $firebaseUrl = env('FIREBASE_DATABASE_URL');
+        $firebaseSecret = env('FIREBASE_DB_SECRET');
 
-        $now = Carbon::now();
-        $validData = 0; // Total data yang memiliki tanggal lahir valid
-
-        foreach ($pendudukData as $penduduk) {
-            if (empty($penduduk->tanggal_lahir)) continue;
-
-            try {
-                $age = $now->diffInYears(Carbon::parse($penduduk->tanggal_lahir));
-            } catch (\Exception $e) {
-                continue;
-            }
-
-            $validData++; // Hitung sebagai data valid
-
-            // Klasifikasi usia
-            if ($age >= 0 && $age <= 1) {
-                $kategori['Bayi']++;
-            } elseif ($age >= 2 && $age <= 12) {
-                $kategori['Anak-anak']++;
-            } elseif ($age >= 13 && $age <= 17) {
-                $kategori['Remaja']++;
-            } elseif ($age >= 18 && $age <= 59) {
-                $kategori['Dewasa']++;
-            } elseif ($age >= 60) {
-                $kategori['Lansia']++;
-            }
+        // Pastikan URL berakhiran slash
+        if (!str_ends_with($firebaseUrl, '/')) {
+            $firebaseUrl .= '/';
         }
 
-        // Menghitung persentase setiap kategori dari total penduduk valid (untuk visualisasi bar chart)
-        $persentase = [];
-        if ($validData > 0) {
-            foreach ($kategori as $label => $count) {
-                // Persentase kategori dari total penduduk valid
-                $persentase[$label] = ($count / $validData) * 100;
-            }
-        }
+        // Request Paralel agar loading lebih cepat
+        $responses = Http::pool(fn ($pool) => [
+            $pool->as('penduduk')->get($firebaseUrl . 'penduduks.json', ['auth' => $firebaseSecret]),
+            $pool->as('bangunan')->get($firebaseUrl . 'bangunans.json', ['auth' => $firebaseSecret]),
+        ]);
 
         return [
-            'counts' => $kategori, // Jumlah hitungan (untuk label)
-            'percentages' => $persentase, // Persentase (untuk width bar)
-            'total' => $validData
+            'penduduk' => $responses['penduduk']->json() ?? [],
+            'bangunan' => $responses['bangunan']->json() ?? [],
         ];
+    }
+
+    /**
+     * Menghitung statistik kependudukan (Total, KK, Laki, Perempuan)
+     */
+    private function processPendudukStats(array $rawData): array
+    {
+        $data = collect($rawData)->map(fn($item) => (object) $item);
+
+        return [
+            'total' => $data->count(),
+            
+            // Hitung Kepala Keluarga
+            'kk' => $data->filter(function ($item) {
+                return isset($item->statusDiKeluarga) && $item->statusDiKeluarga === 'Kepala Keluarga';
+            })->count(),
+
+            // Hitung Laki-laki (Field: 'jenisKelamin')
+            'laki' => $data->filter(function ($item) {
+                return isset($item->jenisKelamin) && $item->jenisKelamin === 'Laki-laki';
+            })->count(),
+
+            // Hitung Perempuan (Field: 'jenisKelamin')
+            'perempuan' => $data->filter(function ($item) {
+                return isset($item->jenisKelamin) && $item->jenisKelamin === 'Perempuan';
+            })->count(),
+        ];
+    }
+
+    /**
+     * Menghitung statistik bangunan (Hanya bangunan valid)
+     */
+    private function processBangunanStats(array $rawData): int
+    {
+        $data = collect($rawData)->map(fn($item) => (object) $item);
+
+        // Filter: Hanya ambil yang field 'kategori'-nya ada isinya
+        $validBangunan = $data->filter(function ($item) {
+            return !empty($item->kategori);
+        });
+
+        return $validBangunan->count();
     }
 }

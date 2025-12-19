@@ -4,131 +4,234 @@
 
 @section('content')
 
+<style>
+    /* --- UTILITY: CONTAINER PENYAMA LEBAR (SAMA DENGAN NAVBAR & FOOTER) --- */
+    .content-container {
+        width: 100%;
+        max-width: 1200px; /* Lebar maksimum sama dengan Navbar */
+        margin: 0 auto;    /* Posisi Tengah */
+        padding: 0 1.5rem; /* Padding Kiri-Kanan sama dengan Navbar */
+        position: relative; 
+        z-index: 2;
+    }
+
+    /* --- HERO SECTION --- */
+    .hero-section {
+        position: relative; z-index: 1; height: 60vh; min-height: 400px;
+        background: url('{{ asset("images/klotok.webp") }}') center/cover no-repeat fixed;
+        display: flex; align-items: center; justify-content: center; text-align: center; color: white;
+    }
+    .hero-section::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;
+        background: linear-gradient(to bottom, rgba(0, 31, 63, 0.7), rgba(0, 31, 63, 0.9));
+    }
+    .hero-content { 
+        position: relative; z-index: 2; padding: 20px 0; 
+    }
+    .hero-title { font-size: 3rem; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-bottom: 0.5rem; }
+    .hero-subtitle { font-size: 1.2rem; font-weight: 300; letter-spacing: 1px; opacity: 0.9; }
+    
+    /* --- DATA SECTION --- */
+    .data-section {
+        background-color: #001f3f;
+        padding: 3rem 0; /* Padding vertical saja, horizontal diatur container */
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header { text-align: center; margin-bottom: 2rem; }
+    .section-title {
+        font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 10px;
+        position: relative; display: inline-block;
+        text-transform: uppercase;
+    }
+    .section-title::after {
+        content: ''; display: block; width: 60px; height: 4px; background: #f7a731;
+        margin: 10px auto 0; border-radius: 2px;
+    }
+
+    /* Grid Layout - 1 Baris (5 Kolom) */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); 
+        gap: 1rem;
+        width: 100%;
+    }
+
+    /* Card Styling - Compact */
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem 0.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(5px);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card.primary {
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    }
+
+    .stat-icon { font-size: 2rem; color: #f7a731; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2.5rem; font-weight: 800; color: #ffffff; line-height: 1; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.9rem; color: #a0aec0; font-weight: 500; white-space: nowrap; }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+        .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 576px) {
+        .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+        .stat-value { font-size: 2rem; }
+    }
+
+    /* --- INFO, PROFILE, LOCATION --- */
+    .info-section, .profile-section, .location-section { 
+        padding: 4rem 0; /* Padding vertical saja */
+        background: #fff; 
+    }
+    .profile-section { background: #f8f9fa; }
+    
+    .map-container iframe { border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+</style>
+
+{{-- HERO --}}
 <header class="hero-section">
-    <div class="overlay"></div>
-    <div class="header-content">
-        <h1 class="title">KELURAHAN SUKORAME</h1>
-        <p class="subtitle">Official Website</p>
+    <div class="content-container">
+        <div class="hero-content">
+            <h1 class="hero-title">KELURAHAN SUKORAME</h1>
+            <p class="hero-subtitle">Official Website & Layanan Digital</p>
+        </div>
     </div>
 </header>
 
+{{-- DATA DASHBOARD --}}
 <section class="data-section">
-    <h2 class="section-title">DATA PENDUDUK</h2>
-    <div class="data-carousel-wrapper">
-        <button class="carousel-nav prev">←</button>
-
-        <div class="data-cards-container">
-            {{-- Kartu 1: Total Penduduk --}}
-            <div class="data-card large">
-                <div class="card-content">
-                    <p class="data-label">Jumlah Penduduk</p>
-                    <p class="data-value">{{ $totalPenduduk ?? '0' }}</p>
-                </div>
-                <div class="card-image-placeholder"></div>
-            </div>
-
-            {{-- Kartu 2: Laki-laki & Perempuan --}}
-            <div class="data-card small chart-card">
-                <div class="chart-label">
-                    <p>Laki-laki: {{ $jumlahLakiLaki ?? '0' }}</p>
-                    <p>Perempuan: {{ $jumlahPerempuan ?? '0' }}</p>
-                </div>
-                <div class="bar-chart">
-                    @php
-                        $totalGender = ($jumlahLakiLaki ?? 0) + ($jumlahPerempuan ?? 0);
-                        $lakiPercent = $totalGender > 0 ? ($jumlahLakiLaki / $totalGender) * 100 : 0;
-                        $perempuanPercent = $totalGender > 0 ? ($jumlahPerempuan / $totalGender) * 100 : 0;
-                    @endphp
-                    <div class="bar-fill laki" style="width: {{ $lakiPercent }}%;"></div>
-                    <div class="bar-fill perempuan" style="width: {{ $perempuanPercent }}%;"></div>
-                </div>
-            </div>
-
-            {{-- Kartu 3: Jumlah Rumah Tangga (Statis) --}}
-            <div class="data-card large">
-                <div class="card-content">
-                    <p class="data-label">Jumlah Rumah Tangga</p>
-                    <p class="data-value">75</p>
-                </div>
-                <div class="card-image-placeholder"></div>
-            </div>
-
-            <div class="data-card small chart-card">
-                <div class="chart-label">
-                    {{-- DIBENAHI: Tampilkan persentase per kategori --}}
-                    <p>Bayi: {{ $usiaData['counts']['Bayi'] ?? '0' }} ({{ round($usiaData['percentages']['Bayi'] ?? 0) }}%)</p>
-                    <p>Anak-anak: {{ $usiaData['counts']['Anak-anak'] ?? '0' }} ({{ round($usiaData['percentages']['Anak-anak'] ?? 0) }}%)</p>
-                    <p>Remaja: {{ $usiaData['counts']['Remaja'] ?? '0' }} ({{ round($usiaData['percentages']['Remaja'] ?? 0) }}%)</p>
-                    <p>Dewasa: {{ $usiaData['counts']['Dewasa'] ?? '0' }} ({{ round($usiaData['percentages']['Dewasa'] ?? 0) }}%)</p>
-                    <p>Lansia: {{ $usiaData['counts']['Lansia'] ?? '0' }} ({{ round($usiaData['percentages']['Lansia'] ?? 0) }}%)</p>
-                </div>
-
-                <div class="bar-chart-multi">
-                    {{-- Total Usia Muda dan Usia Dewasa dihitung dari Controller, TAPI KITA BUTUH PERSENTASE DI PHP --}}
-                    @php
-                        // Hitungan persentase total dua kelompok besar sudah di Controller.
-                        // Ambil dari array percentages:
-                        $mudaPercent = $usiaData['percentages']['Usia Muda'] ?? 0;
-                        $dewasaPercent = $usiaData['percentages']['Usia Dewasa'] ?? 0;
-                    @endphp
-
-                    {{-- Menampilkan 5 bar fill di dalam satu bar chart multi --}}
-                    {{-- Kita akan menggunakan persentase masing-masing kategori usia di sini --}}
-
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Bayi'] ?? 0 }}%; background-color: #f7a731;" title="Bayi"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Anak-anak'] ?? 0 }}%; background-color: #8c81ff;" title="Anak-anak"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Remaja'] ?? 0 }}%; background-color: #4b6cb7;" title="Remaja"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Dewasa'] ?? 0 }}%; background-color: #55A08F;" title="Dewasa"></div>
-                    <div class="bar-fill-multi" style="width: {{ $usiaData['percentages']['Lansia'] ?? 0 }}%; background-color: #dc3545;" title="Lansia"></div>
-                </div>
-            </div>
+    <div class="content-container">
+        
+        <div class="section-header">
+            <h2 class="section-title">INFORMASI & DATA TERPADU</h2>
+            <p style="color: #a0aec0; margin-top: 10px;">Ringkasan data demografi & infrastruktur terkini</p>
         </div>
 
-        <button class="carousel-nav next">→</button>
+        <div class="dashboard-grid">
+            
+            {{-- Card 1: Kepala Keluarga --}}
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="bi bi-house-door-fill"></i></div>
+                <div class="stat-value">{{ $totalKK }}</div>
+                <div class="stat-label">Kepala Keluarga</div>
+            </div>
+
+            {{-- Card 2: Total Penduduk --}}
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value">{{ $totalPenduduk }}</div>
+                <div class="stat-label">Total Penduduk</div>
+            </div>
+
+            {{-- Card 3: Laki-laki --}}
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="bi bi-gender-male"></i></div>
+                <div class="stat-value">{{ $totalLaki ?? 0 }}</div>
+                <div class="stat-label">Laki-laki</div>
+            </div>
+
+            {{-- Card 4: Perempuan --}}
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="bi bi-gender-female"></i></div>
+                <div class="stat-value">{{ $totalPerempuan ?? 0 }}</div>
+                <div class="stat-label">Perempuan</div>
+            </div>
+
+            {{-- Card 5: Total Bangunan --}}
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="bi bi-building"></i></div>
+                <div class="stat-value">{{ $totalBangunan ?? 0 }}</div>
+                <div class="stat-label">Total Bangunan</div>
+            </div>
+            
+        </div>
     </div>
 </section>
 
+{{-- BERITA / INFO --}}
 <section class="info-section">
-    <h2 class="section-title">BERITA dan INFORMASI</h2>
-    <div class="info-card-container">
-        <div class="info-card">
-            <div class="info-text">
-                <h3 class="info-title">Jumlah Penduduk</h3>
-                <p class="info-description">
-                    Lagi-lagi aku bingung mau nulis apa. Coba gini dulu sementara ya.
+    <div class="content-container">
+        
+        <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+            <div class="info-text" style="flex: 1; min-width: 300px;">
+                <h2 style="font-size: 2rem; font-weight: 700; color: #001f3f; margin-bottom: 1rem;">Program Unggulan</h2>
+                <h3 style="font-size: 1.2rem; color: #f7a731; margin-bottom: 1rem;">Pemberdayaan Masyarakat</h3>
+                <p style="color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Kelurahan Sukorame aktif mengadakan berbagai program untuk meningkatkan keterampilan dan kesejahteraan warga.
                 </p>
-                <a href="#" class="info-button">Selengkapnya</a>
+                <a href="https://www.instagram.com/prokopimkotakediri?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" style="display: inline-block; padding: 10px 20px; background: #001f3f; color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">Baca Selengkapnya</a>
             </div>
-            <div class="info-image">
-                <img src="{{ asset('images/berita.png') }}" alt="Informasi">
+            <div class="info-image" style="flex: 1; min-width: 300px;">
+                <img src="{{ asset('images/umkm.webp') }}" alt="Informasi" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
             </div>
         </div>
-        <div class="info-navigation">
-            <span class="nav-arrow left">←</span>
-            <span class="nav-arrow right">→</span>
-        </div>
+
     </div>
 </section>
 
+{{-- PROFIL LURAH --}}
 <section class="profile-section">
-    <div class="profile-content">
-        <div class="profile-image-container">
-            <img src="{{ asset('images/lurah.jpeg') }}" alt="Vita Sari" class="profile-photo">
+    <div class="content-container">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="font-size: 2rem; font-weight: 700; color: #001f3f;">PIMPINAN KAMI</h2>
         </div>
-        <div class="profile-text">
-            <h2 class="profile-name">Vita Sari, SE. MM.</h2>
-            <p class="profile-description">
-                Vita Sari, S.E., M.M., memegang jabatan sebagai Lurah Kelurahan Sukorame, yang menempatkannya sebagai pimpinan eksekutif tertinggi yang bertanggung jawab atas seluruh aspek pemerintahan, pembangunan, dan kemasyarakatan di wilayahnya. Perannya bukan sekadar administratif, melainkan sebagai seorang manajer publik strategis yang mengoordinasikan dan mengawasi kinerja tiga seksi utama yang mencakup bidang pelayanan umum, pembangunan ekonomi dan pemberdayaan masyarakat, serta penjaminan ketentraman dan ketertiban sosial.
-            </p>
+        
+        <div style="max-width: 900px; margin: 0 auto; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; text-align: left;">
+            <img src="{{ asset('images/lurah.jpeg') }}" alt="Vita Sari" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid #f7a731;">
+            <div style="flex: 1;">
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #001f3f; margin-bottom: 0.5rem;">Vita Sari, SE. MM.</h3>
+                <p style="color: #888; margin-bottom: 1rem; font-weight: 500;">Lurah Kelurahan Sukorame</p>
+                <p style="color: #555; line-height: 1.6;">
+                    "Berkomitmen untuk memberikan pelayanan publik yang transparan, akuntabel, dan mengutamakan kesejahteraan seluruh warga Sukorame."
+                </p>
+            </div>
         </div>
+
     </div>
 </section>
 
+{{-- LOKASI --}}
 <section class="location-section">
-    <h2 class="section-title">LOKASI</h2>
-    <div class="map-container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.535359781846!2d111.993131!3d-7.733535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7856d35272a5a5%3A0x600b33b9134a66a!2sKelurahan%20Sukorame!5e0!3m2!1sen!2sid!4v1699999999999!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="content-container">
+        
+        <div class="section-header">
+            <h2 class="section-title" style="color: #001f3f;">LOKASI KANTOR</h2>
+        </div>
+        <div class="map-container">
+            {{-- Gunakan link embed khusus ini --}}
+            <iframe 
+                src="https://maps.google.com/maps?q=Kantor+Kelurahan+Sukorame+Kediri&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+                width="100%" 
+                height="450" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+
     </div>
 </section>
 
 @endsection
+
+@push('scripts')
+{{-- Scripts tambahan jika diperlukan --}}
+@endpush

@@ -10,15 +10,13 @@ class Bangunan extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'bangunans';
+
     protected $fillable = [
         'nama_bangunan',
         'kategori',
         'deskripsi',
+        'alamat',
         'latitude',
         'longitude',
         'rw_id',
@@ -30,7 +28,6 @@ class Bangunan extends Model
     {
         return $this->belongsTo(Rw::class, 'rw_id');
     }
-
 
     public function rt(): BelongsTo
     {

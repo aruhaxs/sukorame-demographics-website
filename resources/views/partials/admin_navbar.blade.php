@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navbar Responsif</title>
+    <title>Navbar Responsif Biru</title>
     <style>
         /* --- Reset & Gaya Dasar --- */
         * {
@@ -41,42 +41,50 @@
             align-items: center;
             background-color: #ffffff;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative;
             z-index: 100;
         }
 
         .navbar-logo img {
-            height: 40px; /* Atur tinggi logo */
+            height: 40px; 
             width: auto;
             display: block;
+            /* Opsional: Filter agar logo terlihat jika logo asli berwarna gelap */
+            /* filter: brightness(0) invert(1); */ 
         }
 
         /* --- Link Navigasi (Tampilan Desktop) --- */
         .navbar-links {
             display: flex;
             list-style: none;
-            gap: 2rem; /* Jarak antar menu */
+            gap: 2rem; 
         }
 
         .navbar-links a {
-            color: #333;
+            color: #ffffff; /* UBAH: Teks jadi Putih */
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
 
         .navbar-links a:hover {
-            color: #007bff;
+            color: #f7a731; /* UBAH: Hover jadi Oranye/Emas */
         }
 
         .navbar-links .logout-link {
-            color: #dc3545; /* Warna khusus logout */
+            color: #ff6b6b; /* UBAH: Merah terang agar terbaca di background gelap */
+        }
+        
+        .navbar-links .logout-link:hover {
+            color: #ff4c4c;
         }
 
         /* --- Tombol Hamburger --- */
         .navbar-toggler {
-            display: none; /* Sembunyi di desktop */
+            display: none; 
             flex-direction: column;
             justify-content: space-around;
             width: 30px;
@@ -90,7 +98,7 @@
         .navbar-toggler .bar {
             width: 100%;
             height: 3px;
-            background-color: #333;
+            background-color: #ffffff; /* UBAH: Garis hamburger jadi putih */
             border-radius: 2px;
             transition: all 0.3s ease-in-out;
         }
@@ -107,38 +115,37 @@
         }
 
         /* --- Logika Responsif --- */
-        /* Aktif untuk layar dengan lebar 900px atau kurang */
         @media (max-width: 900px) {
             .navbar-toggler {
-                display: flex; /* Tampilkan tombol hamburger */
+                display: flex; 
             }
 
             .navbar-links {
-                /* Ubah menjadi menu geser dari kanan */
                 position: fixed;
                 top: 0;
-                right: -300px; /* Sembunyi di luar layar kanan */
+                right: -300px; 
                 width: 300px;
                 height: 100vh;
                 background-color: #ffffff;
-                box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+                box-shadow: -2px 0 5px rgba(0,0,0,0.2);
 
-                /* Atur item menu menjadi vertikal */
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: flex-start;
                 padding-top: 5rem;
                 gap: 0;
                 transition: right 0.3s ease-in-out;
+                border-left: 1px solid rgba(255,255,255,0.1);
             }
 
-            /* Saat menu aktif (dikontrol JS) */
+            /* Saat menu aktif */
             .navbar-links.active {
-                right: 0; /* Tampilkan menu dengan menggesernya ke dalam layar */
+                right: 0; 
             }
 
             .navbar-links li {
                 width: 100%;
+                border-bottom: 1px solid rgba(255,255,255,0.05); /* Garis pemisah tipis */
             }
 
             .navbar-links a {
@@ -148,11 +155,12 @@
             }
 
             .navbar-links a:hover {
-                background-color: #f1f1f1;
+                background-color: rgba(255,255,255,0.1); /* Efek hover background transparan */
+                color: #f7a731;
             }
         }
 
-        /* Penyesuaian untuk layar yang sangat kecil */
+        /* Penyesuaian untuk layar sangat kecil */
         @media (max-width: 400px) {
             .navbar {
                 padding: 1rem;
@@ -173,16 +181,12 @@
         <div class="navbar-logo">
             <a href="#">
                 {{-- Ganti '#' dengan route yang sesuai --}}
-                {{-- Pastikan Anda memiliki gambar di public/images/logo.png --}}
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Admin">
             </a>
         </div>
 
         <ul class="navbar-links" id="navbar-links">
             <li><a href="{{ route('admin.dashboard') }}">DASHBOARD</a></li>
-            <li><a href="{{ route('admin.perangkat.index') }}">RT/RW</a></li>
-            <li><a href="{{ route('admin.penduduk.index') }}">PENDUDUK</a></li>
-            <li><a href="{{ route('admin.komoditas.index') }}">KOMODITAS</a></li>
             <li><a href="{{ route('admin.bangunan.index') }}">BANGUNAN</a></li>
             <li><a href="{{ route('login') }}" class="logout-link">LOGOUT</a></li>
         </ul>
@@ -201,18 +205,12 @@
             const overlay = document.getElementById('overlay');
 
             const toggleMenu = () => {
-                // Toggle kelas 'open' untuk animasi tombol hamburger
                 navbarToggler.classList.toggle('open');
-                // Toggle kelas 'active' untuk menampilkan/menyembunyikan menu
                 navbarLinks.classList.toggle('active');
-                // Toggle kelas 'active' untuk menampilkan/menyembunyikan overlay
                 overlay.classList.toggle('active');
             };
 
-            // Tambahkan event listener untuk tombol hamburger
             navbarToggler.addEventListener('click', toggleMenu);
-
-            // Tambahkan event listener untuk overlay (menutup menu saat diklik)
             overlay.addEventListener('click', toggleMenu);
         });
     </script>
